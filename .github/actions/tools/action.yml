@@ -30,9 +30,8 @@ runs:
       run: |
         mkdir -p .tools/{go-build,go}
         GOCACHE="${PWD}/.tools/go-build" GOPATH="${PWD}/.tools/go" make tools
-        du --human-readable --max-depth=1 --all ./.tools | sort --human-numeric-sort --revers
+        du --human-readable --max-depth=2 --all ./.tools | sort --human-numeric-sort --revers
 
 # GOCACHE = ~/.cache/go-build
 # GOPATH = ~/go
 # GOMODCACHE = $GOPATH/mod
-

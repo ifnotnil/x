@@ -29,3 +29,6 @@ jobs:
 
     - name: Check shell files
       run: make ci-sh
+
+    - name: Check dependabot file
+      run: make ci-dependabot

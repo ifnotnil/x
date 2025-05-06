@@ -60,3 +60,8 @@ ci-mod: mod
 .PHONY: ci-sh
 ci-sh: shfmt shellcheck
 	@$(REPO_ROOT)/scripts/git-check-dirty
+
+.PHONY: ci-dependabot
+ci-dependabot:
+	@$(REPO_ROOT)/scripts/dependabot-file
+	@$(REPO_ROOT)/scripts/git-check-dirty

@@ -1,0 +1,31 @@
+{
+  "go.formatTool": "default",
+  "go.lintTool": "golangci-lint",
+  "go.lintFlags": [
+    "--fast"
+  ],
+  "go.lintOnSave": "package",
+  "go.disableConcurrentTests": true,
+  "go.testTags": "integration_tests",
+  "go.testFlags": [
+    //"-mod=readonly",
+    "-count=1",
+    "-parallel=1",
+    "-v",
+    "-race"
+  ],
+  // ~~Language Server~~ https://github.com/golang/tools/blob/master/gopls/doc/settings.md
+  "go.useLanguageServer": true,
+  "gopls": {
+    "build.buildFlags": [
+      //"-mod=readonly",
+    ],
+    "build.standaloneTags": [
+      "integration_tests"
+    ],
+    "build.env": {
+      "GO111MODULE": "on"
+    },
+
+  }
+}
