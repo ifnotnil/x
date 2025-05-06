@@ -1,0 +1,100 @@
+# yaml-language-server: $schema=https://golangci-lint.run/jsonschema/golangci.jsonschema.json
+
+# https://golangci-lint.run/usage/configuration/
+# https://golangci-lint.run/usage/linters/
+
+version: "2"
+
+run:
+  go: "1.23"
+  modules-download-mode: readonly
+  issues-exit-code: 1
+  tests: true
+
+output:
+  formats:
+    text:
+      path: stderr
+      print-linter-name: true
+      print-issued-lines: true
+
+linters:
+  default: all
+  disable:
+    - cyclop
+    - gocyclo
+    - depguard
+    - exhaustive
+    - exhaustruct
+    - funlen
+    - godox
+    - lll
+    - nlreturn
+    - nonamedreturns
+    - testpackage
+    - varnamelen
+    - wrapcheck
+    - wsl
+  settings:
+    govet:
+      enable-all: true
+      settings:
+        shadow:
+          strict: false
+    maintidx:
+      under: 10
+    misspell:
+      locale: US
+      ignore-rules:
+        - ""
+    paralleltest:
+      ignore-missing: true
+      ignore-missing-subtests: true
+    prealloc:
+      simple: true
+      range-loops: true
+      for-loops: true
+    unused:
+      field-writes-are-uses: false
+      post-statements-are-reads: false
+      exported-fields-are-used: true
+      parameters-are-used: true
+      local-variables-are-used: false
+      generated-is-used: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - std-error-handling
+    rules:
+      - linters:
+          - dupl
+          - err113
+          - gochecknoglobals
+          - goconst
+          - gocyclo
+          - maintidx
+          - mnd
+        path: (.+)_test\.go
+      - linters:
+          - govet
+        path: (.+)_test\.go
+        text: 'fieldalignment:'
+      - linters:
+          - revive
+        path: (.+)_test\.go
+        text: 'unused-parameter:'
+      - linters:
+          - revive
+        path: (.+)_test\.go
+        text: 'context-as-argument:'
+
+# https://golangci-lint.run/usage/configuration/#fmt
+# https://golangci-lint.run/usage/formatters/
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+    # - golines

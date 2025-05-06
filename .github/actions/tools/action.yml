@@ -1,0 +1,38 @@
+name: 'Tools'
+description: 'Install and cache tools'
+runs:
+  using: "composite"
+  steps:
+    # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions
+    # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#environment-files
+    - id: go_version
+      name: Get Go version
+      shell: bash
+      run: |
+        GO_VER=$(go version | awk '{print $3}')
+        echo "Detected Go version: ${GO_VER}"
+        echo "GO_VER=${GO_VER}" >> "$GITHUB_OUTPUT"
+
+    # https://github.com/actions/cache
+    - name: Cache Tools
+      id: cache-tools
+      uses: actions/cache@v4
+      with:
+        path: |
+          .tools/
+        key: ci-tools-${{ runner.os }}-${{ runner.arch }}-${{ steps.go_version.outputs.GO_VER }}-${{ hashFiles('tools/**') }}
+        restore-keys: |
+          ci-tools-${{ runner.os }}-${{ runner.arch }}-${{ steps.go_version.outputs.GO_VER }}-
+          ci-tools-${{ runner.os }}-${{ runner.arch }}-
+
+    - name: Install Tools
+      shell: bash
+      run: |
+        mkdir -p .tools/{go-build,go}
+        GOCACHE="${PWD}/.tools/go-build" GOPATH="${PWD}/.tools/go" make tools
+        du --human-readable --max-depth=1 --all ./.tools | sort --human-numeric-sort --revers
+
+# GOCACHE = ~/.cache/go-build
+# GOPATH = ~/go
+# GOMODCACHE = $GOPATH/mod
+
