@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+# -d delim	Use DELIM to terminate lines, instead of newline
+# -t	Remove a trailing DELIM from each line read (default newline)
+mapfile -t mod_dirs < <(
+  find . -type f -name go.mod | sed -e 's|^\./||' -e 's|/go\.mod$||' | sort | grep -v -e '^tools'
+)
+
+cat <<END >./.github/dependabot.yml
+# yaml-language-server: \$schema=https://json.schemastore.org/dependabot-2.0.json
+version: 2
+updates:
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "[github-actions]"
+
+  - package-ecosystem: "gomod"
+    directory: "/tools"
+    allow:
+      - dependency-type: direct
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "[tools]"
+      include: "scope"
+    groups:
+      all-tools:
+        patterns:
+          - "*"
+
+END
+
+for mod_dir in "${mod_dirs[@]}"; do
+  echo ">>> printing dependabot update for ${mod_dir}"
+  cat <<END >>./.github/dependabot.yml
+  - package-ecosystem: "gomod"
+    directory: "/${mod_dir}"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "[deps][${mod_dir}]"
+      include: "scope"
+
+END
+done
