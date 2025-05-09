@@ -1,22 +1,21 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-name: CI
+name: Main CI
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
 
-  lint-scripts:
-    name: Lints scripts
+  tools:
+    name: Tools
     runs-on: ubuntu-latest
     steps:
 
     # https://github.com/actions/checkout
     - uses: actions/checkout@v4
 
+    # https://github.com/actions/setup-go/
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
@@ -27,8 +26,12 @@ jobs:
     - id: tools
       uses: ./.github/actions/tools
 
-    - name: Check shell files
-      run: make ci-sh
+  scripts:
+    name: Lints scripts
+    needs: [ "tools" ]
+    uses: ./.github/workflows/scripts.yml
 
-    - name: Check dependabot file
-      run: make ci-dependabot
+  http:
+    name: HTTP
+    needs: [ "tools" ]
+    uses: ./.github/workflows/mod_http.yml

@@ -1,0 +1,25 @@
+services:
+  nginx:
+    build:
+      dockerfile: ./Dockerfile
+    volumes:
+    - type: bind
+      source: ./nginx.conf
+      target: /etc/nginx/http.d/default.conf
+    - type: bind
+      source: ./htdocs/
+      target: /var/www/htdocs/
+    ports:
+    - protocol: tcp
+      target: 80
+      published: 8888
+    hostname: nginx
+    container_name: nginx
+    working_dir: /var/www/
+    command: ["nginx", "-g", "daemon off;"]
+
+
+# http://localhost:8888/brotli/
+# http://localhost:8888/brotli-chunked/
+# http://localhost:8888/gzip/
+# http://localhost:8888/gzip-chunked/
