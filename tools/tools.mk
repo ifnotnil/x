@@ -6,7 +6,7 @@
 ## NOTINTERMEDIATE requires make >=4.4
 .NOTINTERMEDIATE:
 
-GO_VER := $(shell go env GOVERSION)
+GO_VER := $(shell go env GOVERSION | cut -d. -f1-2)
 
 # https://www.gnu.org/software/make/manual/make.html#Automatic-Variables
 # https://www.gnu.org/software/make/manual/make.html#Prerequisite-Types
@@ -14,8 +14,6 @@ GO_VER := $(shell go env GOVERSION)
 TOOLS_DIR ?= $(REPO_ROOT)/.tools
 TOOLS_DB ?= $(TOOLS_DIR)/.db
 TOOLS_BIN ?= $(TOOLS_DIR)/bin
-TOOLS_GOPATH ?= $(TOOLS_DIR)/go
-TOOLS_GOCACHE ?= $(TOOLS_DIR)/go-build
 export TOOLS_BIN
 export PATH := $(TOOLS_BIN):$(PATH)
 

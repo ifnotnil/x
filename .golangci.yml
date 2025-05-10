@@ -6,7 +6,7 @@
 version: "2"
 
 run:
-  go: "1.24"
+  go: "1.23"
   modules-download-mode: readonly
   issues-exit-code: 1
   tests: true
@@ -21,6 +21,7 @@ output:
 linters:
   default: all
   disable:
+    - godot
     - cyclop
     - gocyclo
     - depguard
@@ -35,6 +36,10 @@ linters:
     - varnamelen
     - wrapcheck
     - wsl
+    - mnd
+    - gochecknoglobals
+    - funcorder # todo: reconsider
+
   settings:
     govet:
       enable-all: true

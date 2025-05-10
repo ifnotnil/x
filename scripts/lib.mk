@@ -47,10 +47,10 @@ env:
 	@echo ""
 
 .PHONY: checks
-checks: vet staticcheck gofumpt goimports golangci-lint
+checks: vet staticcheck golangci-lint
 
-.PHONY: ci-format
-ci-format: goimports gofumpt
+.PHONY: ci-fmt
+ci-fmt: golangci-lint-fmt
 	$(REPO_ROOT)/scripts/git-check-dirty
 
 .PHONY: ci-mod

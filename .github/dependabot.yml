@@ -23,3 +23,10 @@ updates:
         patterns:
           - "*"
 
+  - package-ecosystem: "gomod"
+    directory: "/http"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "[deps][http]"
+      include: "scope"

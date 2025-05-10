@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Scripts CI
+
+on:
+  workflow_dispatch: {}
+
+  workflow_call: {}
+
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  lint-scripts:
+    name: Lints scripts
+    runs-on: ubuntu-latest
+    steps:
+
+      # https://github.com/actions/checkout
+      - uses: actions/checkout@v4
+
+      # https://github.com/actions/setup-go/
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+          check-latest: true
+          cache: false
+
+      - id: tools
+        uses: ./.github/actions/tools
+
+      - name: Check shell files
+        run: make ci-sh
+
+      - name: Check dependabot file
+        run: make ci-dependabot

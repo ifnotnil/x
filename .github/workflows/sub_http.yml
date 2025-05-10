@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: http
+
+on:
+  workflow_dispatch: {}
+
+  workflow_call: {}
+
+  pull_request:
+    branches: [ main ]
+    paths:
+      - http/**
+      - .github/workflows/http.yml
+      - .golangci.yml
+      - tools/**
+
+jobs:
+
+  http_lint:
+    uses: ./.github/workflows/go_lint.yml
+    with:
+      path: ./http
+
+  http_test:
+    uses: ./.github/workflows/go_test.yml
+    with:
+      path: ./http
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

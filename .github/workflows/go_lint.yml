@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Go Lint
+
+on:
+  workflow_call:
+    # https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#onworkflow_dispatchinputs
+    inputs:
+      path:
+        description: 'Module path'
+        required: true
+        type: string
+        # example: ./http
+
+
+jobs:
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.path }}
+    steps:
+      # https://github.com/actions/checkout
+      - uses: actions/checkout@v4
+
+      # https://github.com/actions/setup-go/
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          # go-version-file: ${{ inputs.path }}/go.mod
+          go-version: "1.23.x"
+          check-latest: true
+          cache: false
+          # cache: true
+          # cache-dependency-path: ./http/go.sum
+
+      - id: tools
+        uses: ./.github/actions/tools
+
+      - name: env
+        shell: bash
+        run: |
+          make --version
+          echo ""
+          make env
+
+      # todo: reconsider to remove in favor of golangci-lint run.
+      - name: fmt
+        shell: bash
+        run: make ci-fmt
+
+      - name: go mod
+        shell: bash
+        run: make ci-mod
+
+      - name: staticcheck
+        shell: bash
+        run: make staticcheck
+
+      - name: golangci-lint
+        shell: bash
+        run: make golangci-lint

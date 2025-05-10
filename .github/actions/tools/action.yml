@@ -9,7 +9,7 @@ runs:
       name: Get Go version
       shell: bash
       run: |
-        GO_VER=$(go version | awk '{print $3}')
+        GO_VER=$(go env GOVERSION | cut -d. -f1-2)
         echo "Detected Go version: ${GO_VER}"
         echo "GO_VER=${GO_VER}" >> "$GITHUB_OUTPUT"
 
@@ -30,7 +30,7 @@ runs:
       run: |
         mkdir -p .tools/{go-build,go}
         GOCACHE="${PWD}/.tools/go-build" GOPATH="${PWD}/.tools/go" make tools
-        du --human-readable --max-depth=2 --all ./.tools | sort --human-numeric-sort --revers
+# du -h -d 1 -a ./.tools | sort -h -r
 
 # GOCACHE = ~/.cache/go-build
 # GOPATH = ~/go
