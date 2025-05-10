@@ -3,6 +3,8 @@
 <!---
 https://app.codecov.io/gh/ifnotnil/x/flags/main
 https://docs.codecov.com/docs/status-badges
+https://docs.codecov.com/docs/components
+https://docs.codecov.com/docs/flags
 -->
 
 | Module |   |   |
