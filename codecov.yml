@@ -4,8 +4,8 @@
 codecov:
   strict_yaml_branch: default  # only use the latest YAML on stated branch
 
-# ignore:
-#   - examples
+ignore:
+  - "http/internal/testingx"
 
 # https://docs.codecov.com/docs/pull-request-comments
 comment:

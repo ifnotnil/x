@@ -4,11 +4,8 @@ name: http
 on:
   workflow_dispatch: {}
 
-  workflow_call:
-    secrets:
-      CODECOV_TOKEN:
-        description: 'Codecov token'
-        required: true
+  push:
+    branches: [ main ]
 
   pull_request:
     branches: [ main ]

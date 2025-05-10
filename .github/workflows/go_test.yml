@@ -53,4 +53,4 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: ifnotnil/x
-
+          flags: "${{ inputs.path }}"
