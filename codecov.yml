@@ -16,12 +16,13 @@ comment:
   require_head: true           # [true :: must have a head report to post]
   hide_project_coverage: true # [true :: only show coverage on the git diff]
 
-flag_management:
-  default_rules: # the rules that will be followed for any flag added, generally
-    carryforward: true
-    statuses:
-      - type: project
-        target: auto
-        threshold: 1%
-      - type: patch
-        target: 80%
+coverage:
+  status:
+    project:
+      http:
+        paths: [ "http" ]
+
+# https://app.codecov.io/gh/ifnotnil/x/flags/main
+# https://docs.codecov.com/docs/commit-status
+# https://docs.codecov.com/docs/components
+# https://docs.codecov.com/docs/flags
