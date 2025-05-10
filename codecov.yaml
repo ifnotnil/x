@@ -1,11 +1,8 @@
 # yaml-language-server: $schema=https://json.schemastore.org/codecov.json
-# curl --data-binary @codecov.yml https://codecov.io/validate
+# curl --data-binary @codecov.yaml https://codecov.io/validate
 
 codecov:
   strict_yaml_branch: main  # only use the latest YAML on stated branch
-
-ignore:
-  - "http/internal/testingx"
 
 # https://docs.codecov.com/docs/pull-request-comments
 comment:
@@ -16,11 +13,19 @@ comment:
   require_head: true           # [true :: must have a head report to post]
   hide_project_coverage: true # [true :: only show coverage on the git diff]
 
-coverage:
-  status:
-    project:
-      http:
-        paths: [ "http" ]
+component_management:
+  default_rules:  # default rules that will be inherited by all components
+    statuses:
+      - type: project # in this case every component that doens't have a status defined will have a project type one
+        target: auto
+        branches:
+          - "!main"
+  individual_components:
+    - component_id: http
+      name: http
+      paths:
+        - http/**
+
 
 # https://app.codecov.io/gh/ifnotnil/x/flags/main
 # https://docs.codecov.com/docs/commit-status
