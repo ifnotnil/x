@@ -35,3 +35,5 @@ jobs:
     name: HTTP
     needs: [ "tools" ]
     uses: ./.github/workflows/sub_http.yml
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
