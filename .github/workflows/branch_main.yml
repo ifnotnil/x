@@ -29,9 +29,9 @@ jobs:
   scripts:
     name: Lints scripts
     needs: [ "tools" ]
-    uses: ./.github/workflows/scripts.yml
+    uses: ./.github/workflows/sub_scripts.yml
 
   http:
     name: HTTP
     needs: [ "tools" ]
-    uses: ./.github/workflows/mod_http.yml
+    uses: ./.github/workflows/sub_http.yml
