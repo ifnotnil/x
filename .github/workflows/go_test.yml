@@ -41,8 +41,9 @@ jobs:
 
       - name: go test
         shell: bash
+        working-directory: ${{ inputs.mod_path }}
         run: |
-          cd ${{ inputs.mod_path }} && go test -timeout 60s -race -tags='$(TAGS)' -coverprofile=coverage.txt -covermode=atomic ./...
+          go test -timeout 60s -race -tags='$(TAGS)' -coverprofile=coverage.txt -covermode=atomic ./...
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v5
@@ -51,3 +52,4 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: ifnotnil/x
           files: ./${{ inputs.mod_path }}/coverage.txt
+          codecov_yml_path: ./codecov.yml
