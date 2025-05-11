@@ -38,4 +38,6 @@ jobs:
         run: make ci-dependabot
 
       - name: Check codecov.yml
-        run: curl --data-binary @codecov.yml https://codecov.io/validate
+        shell: bash
+        run: |
+          curl --data-binary @codecov.yml https://codecov.io/validate

@@ -22,8 +22,13 @@ component_management:
       paths:
         - "http/"
 
+ignore:
+  - "http/internal/testingx" # test helpers
+
 
 # https://app.codecov.io/gh/ifnotnil/x/flags/main
 # https://docs.codecov.com/docs/commit-status
 # https://docs.codecov.com/docs/components
 # https://docs.codecov.com/docs/flags
+
+# bash <(curl -s https://codecov.io/bash) -f codecov.yml

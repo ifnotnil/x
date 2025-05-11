@@ -25,6 +25,6 @@ jobs:
   http_test:
     uses: ./.github/workflows/go_test.yml
     with:
-      path: ./http
+      mod_path: http
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
