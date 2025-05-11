@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://json.schemastore.org/codecov.json
-# curl --data-binary @codecov.yaml https://codecov.io/validate
+# curl --data-binary @.github/codecov.yml https://codecov.io/validate
 
 codecov:
   strict_yaml_branch: main  # only use the latest YAML on stated branch
@@ -18,8 +18,6 @@ component_management:
     statuses:
       - type: project # in this case every component that doens't have a status defined will have a project type one
         target: auto
-        branches:
-          - "!main"
   individual_components:
     - component_id: http
       name: http
