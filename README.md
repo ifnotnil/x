@@ -11,3 +11,5 @@ https://docs.codecov.com/docs/status-badges
 [![ci](https://github.com/ifnotnil/x/actions/workflows/sub_http.yml/badge.svg)](https://github.com/ifnotnil/x/actions/workflows/sub_http.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ifnotnil/x/http)](https://goreportcard.com/report/github.com/ifnotnil/x/http)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/ifnotnit/x/http)](https://pkg.go.dev/github.com/ifnotnil/x/http)
+
+Install: `go get -u github.com/ifnotnil/x/http`
