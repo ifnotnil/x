@@ -1,5 +1,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/codecov.json
-# curl --data-binary @.github/codecov.yml https://codecov.io/validate
+# curl --data-binary @codecov.yml https://codecov.io/validate
+
+# https://docs.codecov.com/docs/codecovyml-reference
 
 codecov:
   strict_yaml_branch: default  # only use the latest YAML on stated branch
