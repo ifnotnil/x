@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-name: http
+name: conf
 
 on:
   workflow_dispatch: {}
@@ -10,8 +10,8 @@ on:
   pull_request:
     branches: [ main ]
     paths:
-      - http/**
-      - .github/workflows/sub_http.yml
+      - conf/**
+      - .github/workflows/sub_conf.yml
       - .golangci.yml
       - tools/**
 
@@ -20,11 +20,11 @@ jobs:
   lint:
     uses: ./.github/workflows/go_lint.yml
     with:
-      mod_path: http
+      mod_path: conf
 
   test:
     uses: ./.github/workflows/go_test.yml
     with:
-      mod_path: http
+      mod_path: conf
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

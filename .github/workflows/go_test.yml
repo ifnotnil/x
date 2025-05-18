@@ -31,6 +31,13 @@ jobs:
           check-latest: true
           cache: false
 
+      - name: env
+        shell: bash
+        run: |
+          make --version
+          echo ""
+          make env
+
       - name: go test
         shell: bash
         working-directory: ${{ inputs.mod_path }}

@@ -13,3 +13,15 @@ https://docs.codecov.com/docs/status-badges
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/ifnotnit/x/http)](https://pkg.go.dev/github.com/ifnotnil/x/http)
 
 Install: `go get -u github.com/ifnotnil/x/http`
+
+## conf
+
+A [knadh/koanf](github.com/knadh/koanf) wrapper.
+
+[Readme](conf/README.md) &emsp; &emsp;
+[![codecov](https://codecov.io/gh/ifnotnil/x/graph/badge.svg?token=n0t9q5Y3Sf&component=conf)](https://codecov.io/gh/ifnotnil/x)
+[![ci](https://github.com/ifnotnil/x/actions/workflows/sub_conf.yml/badge.svg)](https://github.com/ifnotnil/x/actions/workflows/sub_conf.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ifnotnil/x/conf)](https://goreportcard.com/report/github.com/ifnotnil/x/conf)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/ifnotnit/x/conf)](https://pkg.go.dev/github.com/ifnotnil/x/conf)
+
+Install: `go get -u github.com/ifnotnil/x/conf`

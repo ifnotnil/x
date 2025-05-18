@@ -26,6 +26,10 @@ component_management:
       name: http
       paths:
         - "http/"
+    - component_id: conf
+      name: conf
+      paths:
+        - "conf/"
 
 ignore:
   - "http/internal/testingx" # test helpers

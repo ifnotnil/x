@@ -5,11 +5,10 @@ on:
   workflow_call:
     # https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#onworkflow_dispatchinputs
     inputs:
-      path:
+      mod_path:
         description: 'Module path'
         required: true
         type: string
-        # example: ./http
 
 
 jobs:
@@ -19,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.path }}
+        working-directory: ./${{ inputs.mod_path }}
     steps:
       # https://github.com/actions/checkout
       - uses: actions/checkout@v4
@@ -28,7 +27,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          # go-version-file: ${{ inputs.path }}/go.mod
+          # go-version-file: ${{ inputs.mod_path }}/go.mod
           go-version: "1.23.x"
           check-latest: true
           cache: false
