@@ -19,6 +19,7 @@ jobs:
 
   test:
     strategy:
+      fail-fast: false
       matrix:
         os: [ "ubuntu-latest", "macos-latest", "windows-latest" ]
         go-ver: [ "1.23", "1.24" ]
