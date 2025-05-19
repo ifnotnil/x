@@ -53,3 +53,4 @@ jobs:
           slug: ifnotnil/x
           files: ./${{ inputs.mod_path }}/coverage.txt
           codecov_yml_path: ./codecov.yml
+          verbose: true
