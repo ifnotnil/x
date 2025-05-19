@@ -16,7 +16,7 @@ Install: `go get -u github.com/ifnotnil/x/http`
 
 ## conf
 
-A [knadh/koanf](github.com/knadh/koanf) wrapper.
+A [knadh/koanf](github.com/knadh/koanf) boilerplate with some helpers.
 
 [Readme](conf/README.md) &emsp; &emsp;
 [![codecov](https://codecov.io/gh/ifnotnil/x/graph/badge.svg?token=n0t9q5Y3Sf&component=conf)](https://codecov.io/gh/ifnotnil/x)
