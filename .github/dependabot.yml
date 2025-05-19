@@ -24,6 +24,14 @@ updates:
           - "*"
 
   - package-ecosystem: "gomod"
+    directory: "/conf"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "[deps][conf]"
+      include: "scope"
+
+  - package-ecosystem: "gomod"
     directory: "/http"
     schedule:
       interval: "daily"

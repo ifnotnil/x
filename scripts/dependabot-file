@@ -25,11 +25,11 @@ updates:
       all-tools:
         patterns:
           - "*"
-
 END
 
 section() {
   cat <<END >>./.github/dependabot.yml
+
   - package-ecosystem: "gomod"
     directory: "/${1}"
     schedule:
