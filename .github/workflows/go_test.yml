@@ -16,6 +16,36 @@ on:
         required: true
 
 jobs:
+  test-cover:
+    name: Go Test with coverage
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/actions/checkout
+      - uses: actions/checkout@v4
+
+      # https://github.com/actions/setup-go/
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.x"
+          check-latest: true
+          cache: false
+
+      - name: go test
+        shell: bash
+        working-directory: ${{ inputs.mod_path }}
+        run: |
+          go test -timeout 60s -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: ifnotnil/x
+          files: ./${{ inputs.mod_path }}/coverage.txt
+          codecov_yml_path: ./codecov.yml
+          verbose: true
+
 
   test:
     strategy:
@@ -23,6 +53,9 @@ jobs:
       matrix:
         os: [ "ubuntu-latest", "macos-latest", "windows-latest" ]
         go-ver: [ "1.23", "1.24" ]
+        exclude:
+          - os: "ubuntu-latest"
+            go-ver: "1.24"
     name: Go Test
     runs-on: "${{ matrix.os }}"
     steps:
@@ -44,14 +77,4 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.mod_path }}
         run: |
-          go test -timeout 60s -race -tags='$(TAGS)' -coverprofile=coverage.txt -covermode=atomic ./...
-
-      - name: Upload results to Codecov
-        uses: codecov/codecov-action@v5
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.go-ver == '1.24' }}
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: ifnotnil/x
-          files: ./${{ inputs.mod_path }}/coverage.txt
-          codecov_yml_path: ./codecov.yml
-          verbose: true
+          go test -timeout 60s ./...
