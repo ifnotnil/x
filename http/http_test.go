@@ -86,8 +86,3 @@ func newIOReadCloserMock(t *testing.T, closeErr error) *ioReadCloserMock {
 
 	return m
 }
-
-var (
-	errMock1 = errors.New("error1")
-	errMock2 = errors.New("error2")
-)
