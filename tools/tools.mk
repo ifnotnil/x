@@ -83,12 +83,12 @@ $(TOOLS_BIN)/golangci-lint: $(TOOLS_DB)/golangci-lint.$(GOLANGCI-LINT_VER).$(GO_
 
 .PHONY: golangci-lint
 golangci-lint: $(TOOLS_BIN)/golangci-lint
-	golangci-lint run
+	golangci-lint run --config $(REPO_ROOT)/.golangci.yml
 	@echo ''
 
 .PHONY: golangci-lint-fmt
 golangci-lint-fmt: $(TOOLS_BIN)/golangci-lint
-	golangci-lint fmt
+	golangci-lint fmt --config $(REPO_ROOT)/.golangci.yml
 	@echo ''
 ## </golangci-lint>
 

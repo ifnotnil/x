@@ -65,6 +65,19 @@ func (e ErrorAssertion) Assert(t TestingT, err error) bool {
 	return true
 }
 
+func NoError(t TestingT, err error) bool {
+	if h, ok := t.(tHelper); ok {
+		h.Helper()
+	}
+
+	if err != nil {
+		t.Errorf("unexpected error returned.\nError: %T(%s)", err, err.Error())
+		return false
+	}
+
+	return true
+}
+
 func ExpectedErrorChecks(expected ...ErrorAssertion) ErrorAssertion {
 	return func(t TestingT, err error) bool {
 		if h, ok := t.(tHelper); ok {
