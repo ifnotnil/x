@@ -14,6 +14,8 @@ on:
       - .github/workflows/sub_http.yml
       - .golangci.yml
       - tools/**
+      - .github/workflows/go_test.yml
+      - .github/workflows/go_lint.yml
 
 jobs:
 
