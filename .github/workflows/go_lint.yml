@@ -53,6 +53,10 @@ jobs:
         shell: bash
         run: make ci-mod
 
+      - name: vet
+        shell: bash
+        run: make vet
+
       - name: staticcheck
         shell: bash
         run: make staticcheck
