@@ -20,7 +20,7 @@ runs:
       with:
         path: |
           .tools/
-        key: ci-tools-${{ runner.os }}-${{ runner.arch }}-${{ steps.go_version.outputs.GO_VER }}-${{ hashFiles('tools/**') }}
+        key: ci-tools-${{ runner.os }}-${{ runner.arch }}-${{ steps.go_version.outputs.GO_VER }}-${{ hashFiles('tools/go.mod', 'tools/tools.mk') }}
         restore-keys: |
           ci-tools-${{ runner.os }}-${{ runner.arch }}-${{ steps.go_version.outputs.GO_VER }}-
           ci-tools-${{ runner.os }}-${{ runner.arch }}-
