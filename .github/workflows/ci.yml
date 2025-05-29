@@ -1,0 +1,179 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Go CI
+
+on:
+  workflow_call:
+    # https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#onworkflow_dispatchinputs
+    inputs:
+      mod_path:
+        description: 'Module path'
+        required: true
+        type: string
+        # example: http
+
+      test-go-versions:
+        description: 'List of golang versions to run tests. Format is json array of string.'
+        required: false
+        default: '["1.23", "1.24"]'
+        type: string
+      test-os:
+        description: 'The OS to run tests. Format is json array of string.'
+        required: false
+        default: '["ubuntu-latest", "macos-latest", "windows-latest"]'
+        type: string
+
+      test-cover-go-versions:
+        description: 'List of golang versions to run tests with cover. Format is json array of string.'
+        required: false
+        default: '["1.24"]'
+        type: string
+      test-cover-os:
+        description: 'The OS to run tests with cover. Format is json array of string.'
+        required: false
+        default: '["ubuntu-latest"]'
+        type: string
+
+      lint-go-versions:
+        description: 'List of golang versions to run linters. Format is json array of string.'
+        required: false
+        default: '["1.23"]'
+        type: string
+      lint-os:
+        description: 'The OS to run linters. Format is json array of string.'
+        required: false
+        default: '["ubuntu-latest"]'
+        type: string
+
+
+    secrets:
+      CODECOV_TOKEN:
+        description: 'Codecov token'
+        required: true
+
+jobs:
+  test-cover:
+    name: Test With Coverage
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.test-cover-os) }}
+        go-version: ${{ fromJson(inputs.test-cover-go-versions) }}
+    runs-on: "${{ matrix.os }}"
+    steps:
+      # https://github.com/actions/checkout
+      - uses: actions/checkout@v4
+
+      # https://github.com/actions/setup-go/
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "${{ matrix.go-version }}.x"
+          check-latest: true
+          cache: false
+
+      - name: go test
+        shell: bash
+        working-directory: ${{ inputs.mod_path }}
+        run: |
+          make --version
+          echo ""
+          make env
+          echo ""
+          go test -timeout 60s -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: ifnotnil/x
+          files: ./${{ inputs.mod_path }}/coverage.txt
+          codecov_yml_path: ./codecov.yml
+          verbose: true
+
+
+  test:
+    name: Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.test-os) }}
+        go-version: ${{ fromJson(inputs.test-go-versions) }}
+    runs-on: "${{ matrix.os }}"
+    steps:
+      # https://github.com/actions/checkout
+      - uses: actions/checkout@v4
+
+      # https://github.com/actions/setup-go/
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          # go-version-file: ./http/go.mod
+          go-version: "${{ matrix.go-version }}.x"
+          check-latest: true
+          cache: false
+          # cache: true
+          # cache-dependency-path: ./http/go.sum
+
+      - name: go test
+        shell: bash
+        working-directory: ${{ inputs.mod_path }}
+        run: |
+          go test -timeout 60s ./...
+
+
+  lint:
+    name: Lint
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.lint-os) }}
+        go-version: ${{ fromJson(inputs.lint-go-versions) }}
+    runs-on: "${{ matrix.os }}"
+    defaults:
+      run:
+        working-directory: ./${{ inputs.mod_path }}
+    steps:
+      # https://github.com/actions/checkout
+      - uses: actions/checkout@v4
+
+      # https://github.com/actions/setup-go/
+      - name: set up go
+        uses: actions/setup-go@v5
+        with:
+          # go-version-file: ${{ inputs.mod_path }}/go.mod
+          go-version: "${{ matrix.go-version }}.x"
+          check-latest: true
+          cache: false
+          # cache: true
+          # cache-dependency-path: ./http/go.sum
+
+      - id: tools
+        uses: ./.github/actions/tools
+
+      - name: env
+        shell: bash
+        run: |
+          make --version
+          echo ""
+          make env
+
+      # todo: reconsider to remove in favor of golangci-lint run.
+      - name: fmt
+        shell: bash
+        run: make ci-fmt
+
+      - name: go mod
+        shell: bash
+        run: make ci-mod
+
+      - name: vet
+        shell: bash
+        run: make vet
+
+      - name: staticcheck
+        shell: bash
+        run: make staticcheck
+
+      - name: golangci-lint
+        shell: bash
+        run: make golangci-lint
