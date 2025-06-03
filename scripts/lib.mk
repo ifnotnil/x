@@ -49,8 +49,8 @@ env:
 .PHONY: checks
 checks: vet staticcheck golangci-lint
 
-.PHONY: ci-fmt
-ci-fmt: golangci-lint-fmt
+.PHONY: ci-gen-fmt
+ci-gen-fmt: mockery golangci-lint-fmt
 	$(REPO_ROOT)/scripts/git-check-dirty
 
 .PHONY: ci-mod

@@ -160,7 +160,7 @@ jobs:
       # todo: reconsider to remove in favor of golangci-lint run.
       - name: fmt
         shell: bash
-        run: make ci-fmt
+        run: make ci-gen-fmt
 
       - name: go mod
         shell: bash
