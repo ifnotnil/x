@@ -1,5 +1,12 @@
 name: 'Tools'
 description: 'Install and cache tools'
+
+inputs:
+  cache-key-prefix:
+    description: 'Cache key prefix'
+    required: false
+    default: 'ci-tools'
+
 runs:
   using: "composite"
   steps:
@@ -20,17 +27,17 @@ runs:
       with:
         path: |
           .tools/
-        key: ci-tools-${{ runner.os }}-${{ runner.arch }}-${{ steps.go_version.outputs.GO_VER }}-${{ hashFiles('tools/go.mod', 'tools/tools.mk') }}
+        key: ${{ inputs.cache-key-prefix }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.go_version.outputs.GO_VER }}-${{ hashFiles('tools/go.mod', 'tools/tools.mk') }}
         restore-keys: |
-          ci-tools-${{ runner.os }}-${{ runner.arch }}-${{ steps.go_version.outputs.GO_VER }}-
-          ci-tools-${{ runner.os }}-${{ runner.arch }}-
+          ${{ inputs.cache-key-prefix }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.go_version.outputs.GO_VER }}-
+          ${{ inputs.cache-key-prefix }}-${{ runner.os }}-${{ runner.arch }}-
 
     - name: Install Tools
       shell: bash
       run: |
         mkdir -p .tools/{go-build,go}
         GOCACHE="${PWD}/.tools/go-build" GOPATH="${PWD}/.tools/go" make tools
-# du -h -d 1 -a ./.tools | sort -h -r
+        du -h -d 1 -a ./.tools | sort -h -r
 
 # GOCACHE = ~/.cache/go-build
 # GOPATH = ~/go

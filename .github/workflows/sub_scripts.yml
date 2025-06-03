@@ -30,6 +30,8 @@ jobs:
 
       - id: tools
         uses: ./.github/actions/tools
+        with:
+          cache-key-prefix: lint
 
       - name: Check shell files
         run: make ci-sh
