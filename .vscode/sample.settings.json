@@ -21,7 +21,8 @@
       //"-mod=readonly",
     ],
     "build.standaloneTags": [
-      "integration_tests"
+      "integration_tests",
+      "generators"
     ],
     "build.env": {
       "GO111MODULE": "on"

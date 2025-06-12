@@ -39,6 +39,7 @@ linters:
     - mnd
     - gochecknoglobals
     - funcorder # todo: reconsider
+    - ireturn
 
   settings:
     govet:

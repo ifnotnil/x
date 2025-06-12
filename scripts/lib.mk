@@ -50,7 +50,7 @@ env:
 checks: vet staticcheck golangci-lint
 
 .PHONY: ci-gen-fmt
-ci-gen-fmt: mockery golangci-lint-fmt
+ci-gen-fmt: mockery go-gen golangci-lint-fmt
 	$(REPO_ROOT)/scripts/git-check-dirty
 
 .PHONY: ci-mod

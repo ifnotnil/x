@@ -11,6 +11,11 @@ mod:
 	go mod tidy
 	go mod verify
 
+.PHONY: go-gen
+go-gen:
+	go generate ./...
+
+
 # https://go.dev/ref/mod#go-get
 # -u flag tells go get to upgrade modules
 # -t flag tells go get to consider modules needed to build tests of packages named on the command line.

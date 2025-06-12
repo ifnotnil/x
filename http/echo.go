@@ -108,7 +108,7 @@ func UnpackRequestBody(h http.Header, body io.ReadCloser) (any, error) {
 	}
 
 	s := strings.Builder{}
-	enc := base64.NewEncoder(urlSafeBase64, &s)
+	enc := base64.NewEncoder(base64.RawURLEncoding, &s)
 	_, err := io.Copy(enc, body)
 
 	return s.String(), err
