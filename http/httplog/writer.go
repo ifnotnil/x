@@ -31,7 +31,7 @@ type ResponseWriterWrapper interface {
 	BytesWritten() int
 }
 
-func NewResponseWriterWrapper(w http.ResponseWriter) ResponseWriterWrapper { //nolint:ireturn
+func NewResponseWriterWrapper(w http.ResponseWriter) ResponseWriterWrapper {
 	asFlusher, isFlusher := w.(http.Flusher)
 	asPusher, isPusher := w.(http.Pusher)
 	asReaderFrom, isReaderFrom := w.(io.ReaderFrom)
