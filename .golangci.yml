@@ -41,6 +41,7 @@ linters:
     - gochecknoglobals
     - funcorder # todo: reconsider
     - ireturn
+    - noinlineerr
 
   settings:
     govet:
