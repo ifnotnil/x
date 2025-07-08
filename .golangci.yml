@@ -36,6 +36,7 @@ linters:
     - varnamelen
     - wrapcheck
     - wsl
+    - wsl_v5
     - mnd
     - gochecknoglobals
     - funcorder # todo: reconsider
