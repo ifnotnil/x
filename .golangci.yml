@@ -41,7 +41,8 @@ linters:
     - gochecknoglobals
     - funcorder # todo: reconsider
     - ireturn
-    - noinlineerr
+    - noinlineerr # todo: reconsider
+    - embeddedstructfieldcheck # todo: reconsider
 
   settings:
     govet:
