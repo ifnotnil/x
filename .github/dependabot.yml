@@ -28,7 +28,7 @@ updates:
     schedule:
       interval: "daily"
     commit-message:
-      prefix: "[deps][conf]"
+      prefix: "[conf]"
       include: "scope"
     allow:
       - dependency-type: all
@@ -42,7 +42,7 @@ updates:
     schedule:
       interval: "daily"
     commit-message:
-      prefix: "[deps][http]"
+      prefix: "[http]"
       include: "scope"
     allow:
       - dependency-type: all

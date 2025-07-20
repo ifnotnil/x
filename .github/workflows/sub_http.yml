@@ -10,11 +10,11 @@ on:
   pull_request:
     branches: [ main ]
     paths:
-      - http/**
-      - .github/workflows/sub_http.yml
       - .golangci.yml
       - tools/**
       - .github/workflows/ci.yml
+      - .github/workflows/sub_http.yml
+      - http/**
 
 jobs:
 
