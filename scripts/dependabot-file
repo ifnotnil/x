@@ -22,7 +22,7 @@ updates:
       prefix: "[tools]"
       include: "scope"
     groups:
-      all-tools:
+      main:
         patterns:
           - "*"
 END
@@ -37,6 +37,12 @@ section() {
     commit-message:
       prefix: "[deps][${1}]"
       include: "scope"
+    allow:
+      - dependency-type: all
+    groups:
+      main:
+        patterns:
+          - "*"
 END
 }
 export -f section

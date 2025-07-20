@@ -19,7 +19,7 @@ updates:
       prefix: "[tools]"
       include: "scope"
     groups:
-      all-tools:
+      main:
         patterns:
           - "*"
 
@@ -30,6 +30,12 @@ updates:
     commit-message:
       prefix: "[deps][conf]"
       include: "scope"
+    allow:
+      - dependency-type: all
+    groups:
+      main:
+        patterns:
+          - "*"
 
   - package-ecosystem: "gomod"
     directory: "/http"
@@ -38,3 +44,9 @@ updates:
     commit-message:
       prefix: "[deps][http]"
       include: "scope"
+    allow:
+      - dependency-type: all
+    groups:
+      main:
+        patterns:
+          - "*"
