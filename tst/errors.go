@@ -61,7 +61,7 @@ func NoError() ErrorAssertionFunc {
 		}
 
 		if err != nil {
-			t.Errorf("nil error expected but received : %T(%s)", err, err.Error())
+			t.Errorf("expected nil error but received : %T(%s)", err, err.Error())
 			return false
 		}
 
@@ -76,7 +76,7 @@ func Error() ErrorAssertionFunc {
 		}
 
 		if err == nil {
-			t.Errorf("error expected but noe received")
+			t.Errorf("expected error but none received")
 			return false
 		}
 
@@ -84,6 +84,10 @@ func Error() ErrorAssertionFunc {
 	}
 }
 
+// ErrorIs returns an ErrorAssertionFunc that checks if the given error matches
+// any of the expected errors using errors.Is.
+// If no expected errors are provided, it simply checks that an error is present (similar to Error()).
+// Returns false if the error is nil or doesn't match any expected errors.
 func ErrorIs(allExpectedErrors ...error) ErrorAssertionFunc {
 	return func(t TestingT, err error) bool {
 		if h, ok := t.(interface{ Helper() }); ok {

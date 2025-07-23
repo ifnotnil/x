@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestAll(t *testing.T) {
@@ -59,6 +61,101 @@ func TestAll(t *testing.T) {
 			result := All(tt.assertionFuncs...)(mt, errors.New("test error"))
 
 			assert.Equal(t, tt.expectResult, result)
+		})
+	}
+}
+
+func TestErrorIs(t *testing.T) {
+	baseErr := errors.New("base error")
+	wrappedErr := fmt.Errorf("wrapped: %w", baseErr)
+	anotherErr := errors.New("another error")
+
+	tests := []struct {
+		name              string
+		err               error
+		errorIsArgs       []error
+		expectedResult    bool
+		expectedErrorfMsg string
+	}{
+		{
+			name:              "nil error should fail",
+			err:               nil,
+			errorIsArgs:       []error{baseErr},
+			expectedResult:    false,
+			expectedErrorfMsg: "expected error but none received",
+		},
+		{
+			name:              "nil error without arguments should fail",
+			err:               nil,
+			errorIsArgs:       []error{},
+			expectedResult:    false,
+			expectedErrorfMsg: "expected error but none received",
+		},
+		{
+			name:           "empty expected errors list", // works like IsError
+			err:            baseErr,
+			errorIsArgs:    []error{},
+			expectedResult: true,
+		},
+		{
+			name:           "single matching error",
+			err:            baseErr,
+			errorIsArgs:    []error{baseErr},
+			expectedResult: true,
+		},
+		{
+			name:           "single wrapped matching error",
+			err:            wrappedErr,
+			errorIsArgs:    []error{baseErr},
+			expectedResult: true,
+		},
+		{
+			name:              "single non-matching error",
+			err:               baseErr,
+			errorIsArgs:       []error{anotherErr},
+			expectedResult:    false,
+			expectedErrorfMsg: "error unexpected",
+		},
+		{
+			name:           "multiple matching errors",
+			err:            wrappedErr,
+			errorIsArgs:    []error{baseErr, wrappedErr},
+			expectedResult: true,
+		},
+		{
+			name:              "multiple errors - some match, some don't",
+			err:               wrappedErr,
+			errorIsArgs:       []error{baseErr, anotherErr},
+			expectedResult:    false,
+			expectedErrorfMsg: "error unexpected",
+		},
+		{
+			name:              "multiple errors - none match",
+			err:               baseErr,
+			errorIsArgs:       []error{anotherErr, errors.New("yet another")},
+			expectedResult:    false,
+			expectedErrorfMsg: "error unexpected",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mt := NewMockTestingT(t)
+
+			if !tt.expectedResult {
+				mt.EXPECT().Errorf(
+					mock.MatchedBy(
+						func(format string) bool {
+							return strings.Contains(format, tt.expectedErrorfMsg)
+						},
+					),
+					mock.Anything,
+				).Return()
+			}
+
+			result := ErrorIs(tt.errorIsArgs...)(mt, tt.err)
+
+			assert.Equal(t, tt.expectedResult, result)
 		})
 	}
 }
