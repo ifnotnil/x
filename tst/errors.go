@@ -16,7 +16,7 @@ type TestingT interface {
 type ErrorAssertionFunc func(t TestingT, err error) bool
 
 func (e ErrorAssertionFunc) AsRequire() require.ErrorAssertionFunc {
-	return func(tt require.TestingT, err error, i ...any) {
+	return func(tt require.TestingT, err error, _ ...any) {
 		if suc := e(tt, err); !suc {
 			tt.FailNow()
 		}
@@ -24,7 +24,7 @@ func (e ErrorAssertionFunc) AsRequire() require.ErrorAssertionFunc {
 }
 
 func (e ErrorAssertionFunc) AsAssert() assert.ErrorAssertionFunc {
-	return func(tt assert.TestingT, err error, i ...any) bool {
+	return func(tt assert.TestingT, err error, _ ...any) bool {
 		t, is := tt.(TestingT)
 		if is {
 			return e(t, err)
