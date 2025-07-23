@@ -30,6 +30,10 @@ component_management:
       name: conf
       paths:
         - "conf/"
+    - component_id: tst
+      name: tst
+      paths:
+        - "tst/"
 
 ignore:
   - "http/internal/testingx" # test helpers
