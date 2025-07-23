@@ -336,6 +336,86 @@ func Test_Readme(t *testing.T) {
 	}
 }
 
+func TestErrorStringContains(t *testing.T) {
+	testErr := errors.New("this is a test error message")
+
+	tests := []struct {
+		name              string
+		err               error
+		input             string
+		expectedResult    bool
+		expectedErrorfMsg string
+	}{
+		{
+			name:              "nil error should fail",
+			err:               nil,
+			input:             "test",
+			expectedResult:    false,
+			expectedErrorfMsg: "expected error but none received",
+		},
+		{
+			name:           "exact match",
+			err:            testErr,
+			input:          "this is a test error message",
+			expectedResult: true,
+		},
+		{
+			name:           "partial match",
+			err:            testErr,
+			input:          "test error",
+			expectedResult: true,
+		},
+		{
+			name:           "empty string should match any error",
+			err:            testErr,
+			input:          "",
+			expectedResult: true,
+		},
+		{
+			name:              "no match - different content",
+			err:               testErr,
+			input:             "not found",
+			expectedResult:    false,
+			expectedErrorfMsg: "error string check failed",
+		},
+		{
+			name:              "no match - case sensitive",
+			err:               testErr,
+			input:             "TEST ERROR",
+			expectedResult:    false,
+			expectedErrorfMsg: "error string check failed",
+		},
+		{
+			name:              "no match - extra characters",
+			err:               testErr,
+			input:             "this is a test error message!",
+			expectedResult:    false,
+			expectedErrorfMsg: "error string check failed",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mt := NewMockTestingT(t)
+
+			if !tt.expectedResult {
+				mt.EXPECT().Errorf(
+					mock.MatchedBy(
+						func(format string) bool {
+							return strings.Contains(format, tt.expectedErrorfMsg)
+						},
+					),
+					mock.Anything,
+				).Once().Return()
+			}
+
+			result := ErrorStringContains(tt.input)(mt, tt.err)
+
+			assert.Equal(t, tt.expectedResult, result)
+		})
+	}
+}
+
 type mockErrorTypedAssertionFunc struct {
 	mock.Mock
 }

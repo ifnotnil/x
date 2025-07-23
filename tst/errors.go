@@ -153,6 +153,7 @@ func ErrorStringContains(s string) ErrorAssertionFunc {
 			return false
 		}
 
+		// consider case insensitive?
 		if !strings.Contains(err.Error(), s) {
 			t.Errorf("error string check failed. \nExpected to contain: %s\nGot                : %s\n", s, err.Error())
 			return false
