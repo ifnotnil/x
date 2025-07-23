@@ -160,6 +160,129 @@ func TestErrorIs(t *testing.T) {
 	}
 }
 
+func TestErrorOfType(t *testing.T) {
+	baseErr := errors.New("base error")
+	pathErr := &os.PathError{Op: "open", Path: "/test", Err: baseErr}
+	wrappedPathErr := fmt.Errorf("wrapped: %w", pathErr)
+
+	tests := []struct {
+		name           string
+		err            error
+		typedAsserts   []func(TestingT, *os.PathError)
+		mockInit       func(*MockTestingT)
+		expectedResult bool
+	}{
+		{
+			name:         "nil error should fail",
+			err:          nil,
+			typedAsserts: []func(TestingT, *os.PathError){},
+			mockInit: func(mt *MockTestingT) {
+				mt.EXPECT().Errorf(mock.MatchedBy(func(fmtMsg string) bool {
+					return fmtMsg == "expected error but none received"
+				})).Once()
+			},
+			expectedResult: false,
+		},
+		{
+			name:         "nil *os.PathError should fail",
+			err:          (*os.PathError)(nil),
+			typedAsserts: []func(TestingT, *os.PathError){},
+			mockInit: func(mt *MockTestingT) {
+				mt.EXPECT().Errorf(mock.MatchedBy(func(fmtMsg string) bool {
+					return strings.Contains(fmtMsg, "Expected not nill error type")
+				}), mock.Anything).Once()
+			},
+			expectedResult: false,
+		},
+		{
+			name:           "matching error type with no assertions",
+			err:            pathErr,
+			typedAsserts:   []func(TestingT, *os.PathError){},
+			mockInit:       func(_ *MockTestingT) {},
+			expectedResult: true,
+		},
+		{
+			name:           "wrapped matching error type with no assertions",
+			err:            wrappedPathErr,
+			typedAsserts:   []func(TestingT, *os.PathError){},
+			expectedResult: true,
+		},
+		{
+			name:         "non-matching error type",
+			err:          baseErr,
+			typedAsserts: []func(TestingT, *os.PathError){},
+			mockInit: func(mt *MockTestingT) {
+				mt.EXPECT().Errorf(mock.MatchedBy(func(fmtMsg string) bool {
+					return strings.Contains(fmtMsg, "Error type check failed.")
+				}), mock.Anything, mock.Anything).Once()
+			},
+			expectedResult: false,
+		},
+		{
+			name: "matching error type with passing assertion",
+			err:  pathErr,
+			typedAsserts: []func(TestingT, *os.PathError){
+				func(t TestingT, pe *os.PathError) {
+					assert.Equal(t, "open", pe.Op)
+				},
+			},
+			mockInit: func(mt *MockTestingT) {
+			},
+			expectedResult: true,
+		},
+		{
+			name: "matching error type with multiple passing assertions",
+			err:  pathErr,
+			typedAsserts: []func(TestingT, *os.PathError){
+				func(t TestingT, pe *os.PathError) {
+					assert.Equal(t, "open", pe.Op)
+				},
+				func(t TestingT, pe *os.PathError) {
+					assert.Equal(t, "/test", pe.Path)
+				},
+			},
+			expectedResult: true,
+		},
+		{
+			name: "wrapped matching error type with passing assertion",
+			err:  wrappedPathErr,
+			typedAsserts: []func(TestingT, *os.PathError){
+				func(t TestingT, pe *os.PathError) {
+					assert.Equal(t, "open", pe.Op)
+				},
+			},
+			expectedResult: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mt := NewMockTestingT(t)
+
+			if tt.mockInit != nil {
+				tt.mockInit(mt)
+			}
+
+			result := ErrorOfType[*os.PathError](tt.typedAsserts...)(mt, tt.err)
+
+			assert.Equal(t, tt.expectedResult, result)
+		})
+	}
+
+	t.Run("ensure sub-asserts calls", func(t *testing.T) {
+		baseErr := errors.New("base error")
+		pathErr := &os.PathError{Op: "open", Path: "/test", Err: baseErr}
+
+		mt := NewMockTestingT(t)
+		ma := &mockErrorTypedAssertionFunc{}
+		ma.OnAssert(mt, pathErr).Return(true).Times(3)
+
+		got := ErrorOfType[*os.PathError](ma.Assert, ma.Assert, ma.Assert)(mt, pathErr)
+
+		assert.True(t, got)
+	})
+}
+
 func Test_Readme(t *testing.T) {
 	err := errors.New("not found")
 
@@ -211,4 +334,16 @@ func Test_Readme(t *testing.T) {
 			tc.asserter(t, tc.input)
 		})
 	}
+}
+
+type mockErrorTypedAssertionFunc struct {
+	mock.Mock
+}
+
+func (m *mockErrorTypedAssertionFunc) OnAssert(t any, err any) *mock.Call {
+	return m.On("Assert", t, err)
+}
+
+func (m *mockErrorTypedAssertionFunc) Assert(t TestingT, err *os.PathError) {
+	m.Called(t, err)
 }

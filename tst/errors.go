@@ -2,6 +2,7 @@ package tst
 
 import (
 	"errors"
+	"reflect"
 	"strings"
 
 	"github.com/stretchr/testify/assert"
@@ -125,6 +126,11 @@ func ErrorOfType[T error](typedAsserts ...func(TestingT, T)) ErrorAssertionFunc 
 		if !errors.As(err, &wantErr) {
 			var tErr T
 			t.Errorf("Error type check failed.\nExpected error type: %T\nGot                : %T(%s)", tErr, err, err)
+			return false
+		}
+
+		if v := reflect.ValueOf(wantErr); v.Kind() == reflect.Pointer && v.IsNil() {
+			t.Errorf("Error type check failed.\nExpected not nill error type: %T\nGot                : %T(nil)", wantErr, wantErr)
 			return false
 		}
 
