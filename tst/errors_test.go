@@ -3,6 +3,7 @@ package tst
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -12,56 +13,69 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestAll(t *testing.T) {
-	tests := []struct {
-		name                string
-		assertionFuncs      []ErrorAssertionFunc
-		expectResult        bool
-		expectedErrorfCalls int
-	}{
+func TestNoError(t *testing.T) {
+	tests := []errorAssertionFuncTestCase{
 		{
-			name:                "no assertion functions",
-			assertionFuncs:      []ErrorAssertionFunc{},
-			expectResult:        true,
-			expectedErrorfCalls: 0,
+			name:           "nil error should pass",
+			input:          nil,
+			asserterToTest: NoError(),
+			expectedResult: true,
+			initMock:       func(mt *MockTestingT) {},
 		},
 		{
-			name: "all assertions pass",
-			assertionFuncs: []ErrorAssertionFunc{
-				func(t TestingT, err error) bool { return true },
-				func(t TestingT, err error) bool { return true },
-			},
-			expectResult:        true,
-			expectedErrorfCalls: 0,
+			name:           "non-nil error should fail",
+			input:          errors.New("test error"),
+			asserterToTest: NoError(),
+			expectedResult: false,
+			initMock:       func(mt *MockTestingT) { mt.EXPECT().Errorf(contains("Expected nil error but received"), mock.Anything) },
 		},
 		{
-			name: "one assertion fails",
-			assertionFuncs: []ErrorAssertionFunc{
-				func(t TestingT, err error) bool { return true },
-				func(t TestingT, err error) bool { return false },
-			},
-			expectResult:        false,
-			expectedErrorfCalls: 1,
-		},
-		{
-			name: "all assertions fail",
-			assertionFuncs: []ErrorAssertionFunc{
-				func(t TestingT, err error) bool { return false },
-				func(t TestingT, err error) bool { return false },
-			},
-			expectResult:        false,
-			expectedErrorfCalls: 2,
+			name:           "wrapped error should fail",
+			input:          fmt.Errorf("wrapped: %w", errors.New("base error")),
+			asserterToTest: NoError(),
+			expectedResult: false,
+			initMock:       func(mt *MockTestingT) { mt.EXPECT().Errorf(contains("Expected nil error but received"), mock.Anything) },
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			mt := NewMockTestingT(t)
+	for _, tc := range tests {
+		t.Run(tc.name, tc.Test)
+	}
+}
 
-			result := All(tt.assertionFuncs...)(mt, errors.New("test error"))
+func TestError(t *testing.T) {
+	tests := []errorAssertionFuncTestCase{
+		{
+			name:           "nil error should fail",
+			input:          nil,
+			asserterToTest: Error(),
+			expectedResult: false,
+			initMock: func(mt *MockTestingT) {
+				mt.EXPECT().Errorf(contains("Expected error but none received"), mock.Anything)
+			},
+		},
+		{
+			name:           "non-nil error should pass",
+			input:          errors.New("test error"),
+			asserterToTest: Error(),
+			expectedResult: true,
+		},
+		{
+			name:           "wrapped error should pass",
+			input:          fmt.Errorf("wrapped: %w", errors.New("base error")),
+			asserterToTest: Error(),
+			expectedResult: true,
+		},
+		{
+			name:           "*os.PathError should pass",
+			input:          &os.PathError{Op: "open", Path: "/test", Err: errors.New("base")},
+			asserterToTest: Error(),
+			expectedResult: true,
+		},
+	}
 
-			assert.Equal(t, tt.expectResult, result)
-		})
+	for _, tc := range tests {
+		t.Run(tc.name, tc.Test)
 	}
 }
 
@@ -70,93 +84,74 @@ func TestErrorIs(t *testing.T) {
 	wrappedErr := fmt.Errorf("wrapped: %w", baseErr)
 	anotherErr := errors.New("another error")
 
-	tests := []struct {
-		name              string
-		err               error
-		errorIsArgs       []error
-		expectedResult    bool
-		expectedErrorfMsg string
-	}{
+	tests := []errorAssertionFuncTestCase{
 		{
-			name:              "nil error should fail",
-			err:               nil,
-			errorIsArgs:       []error{baseErr},
-			expectedResult:    false,
-			expectedErrorfMsg: "expected error but none received",
+			name:           "nil error should fail", // works like IsError
+			input:          nil,
+			asserterToTest: ErrorIs(baseErr),
+			expectedResult: false,
+			initMock:       func(mt *MockTestingT) { mt.EXPECT().Errorf(contains("Expected error but none received")).Once() },
 		},
 		{
-			name:              "nil error without arguments should fail",
-			err:               nil,
-			errorIsArgs:       []error{},
-			expectedResult:    false,
-			expectedErrorfMsg: "expected error but none received",
+			name:           "nil error without arguments should fail", // works like IsError
+			input:          nil,
+			asserterToTest: ErrorIs(),
+			expectedResult: false,
+			initMock:       func(mt *MockTestingT) { mt.EXPECT().Errorf(contains("Expected error but none received")).Once() },
 		},
 		{
 			name:           "empty expected errors list", // works like IsError
-			err:            baseErr,
-			errorIsArgs:    []error{},
+			input:          baseErr,
+			asserterToTest: ErrorIs(),
 			expectedResult: true,
+			initMock:       func(mt *MockTestingT) {},
 		},
 		{
 			name:           "single matching error",
-			err:            baseErr,
-			errorIsArgs:    []error{baseErr},
+			input:          baseErr,
+			asserterToTest: ErrorIs(baseErr),
 			expectedResult: true,
+			initMock:       func(mt *MockTestingT) {},
 		},
 		{
 			name:           "single wrapped matching error",
-			err:            wrappedErr,
-			errorIsArgs:    []error{baseErr},
+			input:          wrappedErr,
+			asserterToTest: ErrorIs(baseErr),
 			expectedResult: true,
+			initMock:       func(mt *MockTestingT) {},
 		},
 		{
-			name:              "single non-matching error",
-			err:               baseErr,
-			errorIsArgs:       []error{anotherErr},
-			expectedResult:    false,
-			expectedErrorfMsg: "error unexpected",
+			name:           "single non-matching error",
+			input:          baseErr,
+			asserterToTest: ErrorIs(anotherErr),
+			expectedResult: false,
+			initMock:       func(mt *MockTestingT) { mt.EXPECT().Errorf(contains("Error is unexpected")).Once() },
 		},
 		{
 			name:           "multiple matching errors",
-			err:            wrappedErr,
-			errorIsArgs:    []error{baseErr, wrappedErr},
+			input:          wrappedErr,
+			asserterToTest: ErrorIs(baseErr, wrappedErr),
 			expectedResult: true,
+			initMock:       func(mt *MockTestingT) {},
 		},
 		{
-			name:              "multiple errors - some match, some don't",
-			err:               wrappedErr,
-			errorIsArgs:       []error{baseErr, anotherErr},
-			expectedResult:    false,
-			expectedErrorfMsg: "error unexpected",
+			name:           "multiple errors - some match",
+			input:          wrappedErr,
+			asserterToTest: ErrorIs(anotherErr, wrappedErr),
+			expectedResult: false,
+			initMock:       func(mt *MockTestingT) { mt.EXPECT().Errorf(contains("Error is unexpected")).Once() },
 		},
 		{
-			name:              "multiple errors - none match",
-			err:               baseErr,
-			errorIsArgs:       []error{anotherErr, errors.New("yet another")},
-			expectedResult:    false,
-			expectedErrorfMsg: "error unexpected",
+			name:           "multiple errors - none match",
+			input:          baseErr,
+			asserterToTest: ErrorIs(anotherErr, errors.New("yet another")),
+			expectedResult: false,
+			initMock:       func(mt *MockTestingT) { mt.EXPECT().Errorf(contains("Error is unexpected")).Once() },
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			mt := NewMockTestingT(t)
-
-			if !tt.expectedResult {
-				mt.EXPECT().Errorf(
-					mock.MatchedBy(
-						func(format string) bool {
-							return strings.Contains(format, tt.expectedErrorfMsg)
-						},
-					),
-					mock.Anything,
-				).Return()
-			}
-
-			result := ErrorIs(tt.errorIsArgs...)(mt, tt.err)
-
-			assert.Equal(t, tt.expectedResult, result)
-		})
+	for _, tc := range tests {
+		t.Run(tc.name, tc.Test)
 	}
 }
 
@@ -165,108 +160,88 @@ func TestErrorOfType(t *testing.T) {
 	pathErr := &os.PathError{Op: "open", Path: "/test", Err: baseErr}
 	wrappedPathErr := fmt.Errorf("wrapped: %w", pathErr)
 
-	tests := []struct {
-		name           string
-		err            error
-		typedAsserts   []func(TestingT, *os.PathError)
-		mockInit       func(*MockTestingT)
-		expectedResult bool
-	}{
+	tests := []errorAssertionFuncTestCase{
 		{
-			name:         "nil error should fail",
-			err:          nil,
-			typedAsserts: []func(TestingT, *os.PathError){},
-			mockInit: func(mt *MockTestingT) {
-				mt.EXPECT().Errorf(mock.MatchedBy(func(fmtMsg string) bool {
-					return fmtMsg == "expected error but none received"
-				})).Once()
-			},
+			name:           "nil error should fail",
+			input:          nil,
+			asserterToTest: ErrorOfType[*os.PathError](),
 			expectedResult: false,
+			initMock: func(mt *MockTestingT) {
+				mt.EXPECT().Errorf(contains("Expected error but none received")).Once()
+			},
 		},
 		{
-			name:         "nil *os.PathError should fail",
-			err:          (*os.PathError)(nil),
-			typedAsserts: []func(TestingT, *os.PathError){},
-			mockInit: func(mt *MockTestingT) {
-				mt.EXPECT().Errorf(mock.MatchedBy(func(fmtMsg string) bool {
-					return strings.Contains(fmtMsg, "Expected not nill error type")
-				}), mock.Anything).Once()
-			},
+			name:           "nil *os.PathError should fail",
+			input:          (*os.PathError)(nil),
+			asserterToTest: ErrorOfType[*os.PathError](),
 			expectedResult: false,
+			initMock: func(mt *MockTestingT) {
+				mt.EXPECT().Errorf(contains("Expected not nill error value"), mock.Anything).Once()
+			},
 		},
 		{
 			name:           "matching error type with no assertions",
-			err:            pathErr,
-			typedAsserts:   []func(TestingT, *os.PathError){},
-			mockInit:       func(_ *MockTestingT) {},
+			input:          pathErr,
+			asserterToTest: ErrorOfType[*os.PathError](),
 			expectedResult: true,
+			initMock:       func(_ *MockTestingT) {},
 		},
 		{
 			name:           "wrapped matching error type with no assertions",
-			err:            wrappedPathErr,
-			typedAsserts:   []func(TestingT, *os.PathError){},
+			input:          wrappedPathErr,
+			asserterToTest: ErrorOfType[*os.PathError](),
 			expectedResult: true,
+			initMock:       func(_ *MockTestingT) {},
 		},
 		{
-			name:         "non-matching error type",
-			err:          baseErr,
-			typedAsserts: []func(TestingT, *os.PathError){},
-			mockInit: func(mt *MockTestingT) {
-				mt.EXPECT().Errorf(mock.MatchedBy(func(fmtMsg string) bool {
-					return strings.Contains(fmtMsg, "Error type check failed.")
-				}), mock.Anything, mock.Anything).Once()
-			},
+			name:           "non-matching error type",
+			input:          baseErr,
+			asserterToTest: ErrorOfType[*os.PathError](),
 			expectedResult: false,
+			initMock: func(mt *MockTestingT) {
+				mt.EXPECT().Errorf(contains("Error type check failed."), mock.Anything).Once()
+			},
 		},
 		{
-			name: "matching error type with passing assertion",
-			err:  pathErr,
-			typedAsserts: []func(TestingT, *os.PathError){
+			name:  "matching error type with passing assertion",
+			input: pathErr,
+			asserterToTest: ErrorOfType[*os.PathError](
 				func(t TestingT, pe *os.PathError) {
 					assert.Equal(t, "open", pe.Op)
 				},
-			},
-			mockInit: func(mt *MockTestingT) {
-			},
+			),
 			expectedResult: true,
+			initMock:       func(mt *MockTestingT) {},
 		},
 		{
-			name: "matching error type with multiple passing assertions",
-			err:  pathErr,
-			typedAsserts: []func(TestingT, *os.PathError){
+			name:  "matching error type with multiple passing assertions",
+			input: pathErr,
+			asserterToTest: ErrorOfType[*os.PathError](
 				func(t TestingT, pe *os.PathError) {
 					assert.Equal(t, "open", pe.Op)
 				},
 				func(t TestingT, pe *os.PathError) {
 					assert.Equal(t, "/test", pe.Path)
 				},
-			},
+			),
 			expectedResult: true,
+			initMock:       func(mt *MockTestingT) {},
 		},
 		{
-			name: "wrapped matching error type with passing assertion",
-			err:  wrappedPathErr,
-			typedAsserts: []func(TestingT, *os.PathError){
+			name:  "wrapped matching error type with passing assertion",
+			input: wrappedPathErr,
+			asserterToTest: ErrorOfType[*os.PathError](
 				func(t TestingT, pe *os.PathError) {
 					assert.Equal(t, "open", pe.Op)
 				},
-			},
+			),
 			expectedResult: true,
+			initMock:       func(mt *MockTestingT) {},
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			mt := NewMockTestingT(t)
-
-			if tt.mockInit != nil {
-				tt.mockInit(mt)
-			}
-
-			result := ErrorOfType[*os.PathError](tt.typedAsserts...)(mt, tt.err)
-
-			assert.Equal(t, tt.expectedResult, result)
-		})
+	for _, tc := range tests {
+		t.Run(tc.name, tc.Test)
 	}
 
 	t.Run("ensure sub-asserts calls", func(t *testing.T) {
@@ -281,6 +256,203 @@ func TestErrorOfType(t *testing.T) {
 
 		assert.True(t, got)
 	})
+}
+
+func TestErrorStringContains(t *testing.T) {
+	testErr := errors.New("this is a test error message")
+
+	tests := []errorAssertionFuncTestCase{
+		{
+			name:           "nil error should fail",
+			input:          nil,
+			asserterToTest: ErrorStringContains("test"),
+			expectedResult: false,
+			initMock:       func(mt *MockTestingT) { mt.EXPECT().Errorf(contains("Expected error but none received")) },
+		},
+		{
+			name:           "exact match",
+			input:          testErr,
+			asserterToTest: ErrorStringContains("this is a test error message"),
+			expectedResult: true,
+		},
+		{
+			name:           "partial match",
+			input:          testErr,
+			asserterToTest: ErrorStringContains("test error"),
+			expectedResult: true,
+		},
+		{
+			name:           "empty string should match any error",
+			input:          testErr,
+			asserterToTest: ErrorStringContains(""),
+			expectedResult: true,
+		},
+		{
+			name:           "no match - different content",
+			input:          testErr,
+			asserterToTest: ErrorStringContains("not found"),
+			expectedResult: false,
+			initMock:       func(mt *MockTestingT) { mt.EXPECT().Errorf(contains("Error string check failed."), mock.Anything) },
+		},
+		{
+			name:           "no match - case sensitive",
+			input:          testErr,
+			asserterToTest: ErrorStringContains("TEST ERROR"),
+			expectedResult: false,
+			initMock:       func(mt *MockTestingT) { mt.EXPECT().Errorf(contains("Error string check failed."), mock.Anything) },
+		},
+		{
+			name:           "no match - extra characters",
+			input:          testErr,
+			asserterToTest: ErrorStringContains("this is a test error message!"),
+			expectedResult: false,
+			initMock:       func(mt *MockTestingT) { mt.EXPECT().Errorf(contains("Error string check failed."), mock.Anything) },
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, tc.Test)
+	}
+}
+
+type mockErrorTypedAssertionFunc struct {
+	mock.Mock
+}
+
+func (m *mockErrorTypedAssertionFunc) OnAssert(t any, err any) *mock.Call {
+	return m.On("Assert", t, err)
+}
+
+func (m *mockErrorTypedAssertionFunc) Assert(t TestingT, err *os.PathError) {
+	m.Called(t, err)
+}
+
+type errorAssertionFuncTestCase struct {
+	name           string
+	input          error
+	asserterToTest ErrorAssertionFunc
+	expectedResult bool
+	initMock       func(mt *MockTestingT)
+}
+
+func (tc errorAssertionFuncTestCase) Test(t *testing.T) {
+	mt := NewMockTestingT(t)
+	if tc.initMock != nil {
+		tc.initMock(mt)
+	}
+	result := tc.asserterToTest(mt, tc.input)
+	assert.Equal(t, tc.expectedResult, result, "error asserter returned bool mismatch")
+}
+
+func contains(s string) any {
+	return mock.MatchedBy(func(format string) bool {
+		return strings.Contains(format, s)
+	})
+}
+
+func TestTestifyIntegration(t *testing.T) {
+	tests := []struct {
+		name               string
+		mockAsserterReturn bool
+		mockTInit          func(*MockTestingT)
+		run                func(t *testing.T, mt *MockTestingT, e ErrorAssertionFunc)
+	}{
+		{
+			name:               "AsRequire pass",
+			mockAsserterReturn: true,
+			mockTInit:          func(mt *MockTestingT) {},
+			run:                func(t *testing.T, mt *MockTestingT, e ErrorAssertionFunc) { e.AsRequire()(mt, nil) },
+		},
+		{
+			name:               "AsRequire fail",
+			mockAsserterReturn: false,
+			mockTInit:          func(mt *MockTestingT) { mt.EXPECT().FailNow().Once() },
+			run:                func(t *testing.T, mt *MockTestingT, e ErrorAssertionFunc) { e.AsRequire()(mt, nil) },
+		},
+		{
+			name:               "AsAssert pass",
+			mockAsserterReturn: true,
+			mockTInit:          func(mt *MockTestingT) {},
+			run: func(t *testing.T, mt *MockTestingT, e ErrorAssertionFunc) {
+				got := e.AsAssert()(mt, nil)
+				assert.True(t, got)
+			},
+		},
+		{
+			name:               "AsAssert fail",
+			mockAsserterReturn: false,
+			mockTInit:          func(mt *MockTestingT) {},
+			run: func(t *testing.T, mt *MockTestingT, e ErrorAssertionFunc) {
+				got := e.AsAssert()(mt, nil)
+				assert.False(t, got)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			// expect asserter to be called
+			m := &mock.Mock{}
+			t.Cleanup(func() { m.AssertExpectations(t) })
+			m.On("Assert", mock.Anything, mock.Anything).Return(tc.mockAsserterReturn).Once()
+			var f ErrorAssertionFunc = func(t TestingT, err error) bool {
+				return m.MethodCalled("Assert", t, err).Bool(0)
+			}
+
+			// mock T init
+			mt := NewMockTestingT(t)
+			tc.mockTInit(mt)
+
+			tc.run(t, mt, f)
+		})
+	}
+}
+
+func TestAll(t *testing.T) {
+	tests := []struct {
+		name                string
+		assertionFuncs      []ErrorAssertionFunc
+		expectResult        bool
+		expectedErrorfCalls int
+	}{
+		{
+			name:           "no assertion functions",
+			assertionFuncs: []ErrorAssertionFunc{},
+			expectResult:   true,
+		},
+		{
+			name: "all assertions pass",
+			assertionFuncs: []ErrorAssertionFunc{
+				func(t TestingT, err error) bool { return true },
+				func(t TestingT, err error) bool { return true },
+			},
+			expectResult: true,
+		},
+		{
+			name: "one assertion fails",
+			assertionFuncs: []ErrorAssertionFunc{
+				func(t TestingT, err error) bool { return true },
+				func(t TestingT, err error) bool { return false },
+			},
+			expectResult: false,
+		},
+		{
+			name: "all assertions fail",
+			assertionFuncs: []ErrorAssertionFunc{
+				func(t TestingT, err error) bool { return false },
+				func(t TestingT, err error) bool { return false },
+			},
+			expectResult: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mt := NewMockTestingT(t)
+			result := All(tt.assertionFuncs...)(mt, errors.New("test error"))
+			assert.Equal(t, tt.expectResult, result)
+		})
+	}
 }
 
 func Test_Readme(t *testing.T) {
@@ -336,94 +508,56 @@ func Test_Readme(t *testing.T) {
 	}
 }
 
-func TestErrorStringContains(t *testing.T) {
-	testErr := errors.New("this is a test error message")
+func TestFail(t *testing.T) {
+	t.SkipNow()
+
+	err := errors.New("error one")
 
 	tests := []struct {
-		name              string
-		err               error
-		input             string
-		expectedResult    bool
-		expectedErrorfMsg string
+		name     string
+		input    error
+		asserter ErrorAssertionFunc
 	}{
 		{
-			name:              "nil error should fail",
-			err:               nil,
-			input:             "test",
-			expectedResult:    false,
-			expectedErrorfMsg: "expected error but none received",
+			name:     "NoError",
+			input:    err,
+			asserter: NoError(),
 		},
 		{
-			name:           "exact match",
-			err:            testErr,
-			input:          "this is a test error message",
-			expectedResult: true,
+			name:     "Error",
+			input:    nil,
+			asserter: Error(),
 		},
 		{
-			name:           "partial match",
-			err:            testErr,
-			input:          "test error",
-			expectedResult: true,
+			name:     "ErrorIs one",
+			input:    err,
+			asserter: ErrorIs(io.ErrClosedPipe),
 		},
 		{
-			name:           "empty string should match any error",
-			err:            testErr,
-			input:          "",
-			expectedResult: true,
+			name:     "ErrorIs many",
+			input:    err,
+			asserter: ErrorIs(io.ErrClosedPipe, io.ErrNoProgress),
 		},
 		{
-			name:              "no match - different content",
-			err:               testErr,
-			input:             "not found",
-			expectedResult:    false,
-			expectedErrorfMsg: "error string check failed",
+			name:     "ErrorOfType",
+			input:    err,
+			asserter: ErrorOfType[*os.PathError](),
 		},
 		{
-			name:              "no match - case sensitive",
-			err:               testErr,
-			input:             "TEST ERROR",
-			expectedResult:    false,
-			expectedErrorfMsg: "error string check failed",
+			name:     "ErrorOfType nil",
+			input:    (*os.PathError)(nil),
+			asserter: ErrorOfType[*os.PathError](),
 		},
 		{
-			name:              "no match - extra characters",
-			err:               testErr,
-			input:             "this is a test error message!",
-			expectedResult:    false,
-			expectedErrorfMsg: "error string check failed",
+			name:     "ErrorStringContains",
+			input:    err,
+			asserter: ErrorStringContains("just a string"),
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			mt := NewMockTestingT(t)
-
-			if !tt.expectedResult {
-				mt.EXPECT().Errorf(
-					mock.MatchedBy(
-						func(format string) bool {
-							return strings.Contains(format, tt.expectedErrorfMsg)
-						},
-					),
-					mock.Anything,
-				).Once().Return()
-			}
-
-			result := ErrorStringContains(tt.input)(mt, tt.err)
-
-			assert.Equal(t, tt.expectedResult, result)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.asserter(t, tc.input)
 		})
 	}
-}
-
-type mockErrorTypedAssertionFunc struct {
-	mock.Mock
-}
-
-func (m *mockErrorTypedAssertionFunc) OnAssert(t any, err any) *mock.Call {
-	return m.On("Assert", t, err)
-}
-
-func (m *mockErrorTypedAssertionFunc) Assert(t TestingT, err *os.PathError) {
-	m.Called(t, err)
 }

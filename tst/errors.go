@@ -2,12 +2,15 @@ package tst
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"strings"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+const expectedError = "Expected error but none received"
 
 type TestingT interface {
 	Errorf(format string, args ...interface{})
@@ -32,26 +35,8 @@ func (e ErrorAssertionFunc) AsAssert() assert.ErrorAssertionFunc {
 		}
 
 		// not possible
-		tt.Errorf("wrong TestingT type %T", tt)
+		tt.Errorf("Wrong TestingT type %T", tt)
 		return false
-	}
-}
-
-func All(expected ...ErrorAssertionFunc) ErrorAssertionFunc {
-	return func(t TestingT, err error) bool {
-		if h, ok := t.(interface{ Helper() }); ok {
-			h.Helper()
-		}
-
-		ret := true
-		for _, fn := range expected {
-			ok := fn(t, err)
-			if !ok {
-				ret = ok
-			}
-		}
-
-		return ret
 	}
 }
 
@@ -62,7 +47,7 @@ func NoError() ErrorAssertionFunc {
 		}
 
 		if err != nil {
-			t.Errorf("expected nil error but received : %T(%s)", err, err.Error())
+			t.Errorf("Expected nil error but received : %T(%s)", err, err.Error())
 			return false
 		}
 
@@ -77,7 +62,7 @@ func Error() ErrorAssertionFunc {
 		}
 
 		if err == nil {
-			t.Errorf("expected error but none received")
+			t.Errorf(expectedError)
 			return false
 		}
 
@@ -95,19 +80,42 @@ func ErrorIs(allExpectedErrors ...error) ErrorAssertionFunc {
 			h.Helper()
 		}
 		if err == nil {
-			t.Errorf("expected error but none received")
+			t.Errorf(expectedError)
 			return false
 		}
 
-		ret := true
+		if len(allExpectedErrors) == 0 {
+			return true
+		}
+
+		suc := true
+		notMatched := make([]error, 0, len(allExpectedErrors))
 		for _, expected := range allExpectedErrors {
 			if !errors.Is(err, expected) {
-				t.Errorf("error unexpected.\nExpected error: %T(%s) \nGot           : %T(%s)", expected, expected.Error(), err, err.Error())
-				ret = false
+				notMatched = append(notMatched, expected)
+				suc = false
 			}
 		}
 
-		return ret
+		if !suc {
+			sb := strings.Builder{}
+			sb.WriteString("Error is unexpected.\n")
+			sb.WriteString(fmt.Sprintf("Got error      : %T(%s)\n", err, err.Error()))
+
+			if len(notMatched) == 1 {
+				sb.WriteString(fmt.Sprintf("Expected error : %T(%s)\n", notMatched[0], notMatched[0].Error()))
+				t.Errorf(sb.String())
+				return suc
+			}
+
+			sb.WriteString("Expected errors:\n")
+			for _, e := range notMatched {
+				sb.WriteString(fmt.Sprintf("        -> %T(%s)\n", e, e.Error()))
+			}
+			t.Errorf(sb.String())
+		}
+
+		return suc
 	}
 }
 
@@ -118,7 +126,7 @@ func ErrorOfType[T error](typedAsserts ...func(TestingT, T)) ErrorAssertionFunc 
 		}
 
 		if err == nil {
-			t.Errorf("expected error but none received")
+			t.Errorf(expectedError)
 			return false
 		}
 
@@ -130,7 +138,7 @@ func ErrorOfType[T error](typedAsserts ...func(TestingT, T)) ErrorAssertionFunc 
 		}
 
 		if v := reflect.ValueOf(wantErr); v.Kind() == reflect.Pointer && v.IsNil() {
-			t.Errorf("Error type check failed.\nExpected not nill error type: %T\nGot                : %T(nil)", wantErr, wantErr)
+			t.Errorf("Error check failed.\nExpected not nill error value: %T\nGot                          : %T(nil)", wantErr, wantErr)
 			return false
 		}
 
@@ -149,16 +157,34 @@ func ErrorStringContains(s string) ErrorAssertionFunc {
 		}
 
 		if err == nil {
-			t.Errorf("expected error but none received")
+			t.Errorf(expectedError)
 			return false
 		}
 
 		// consider case insensitive?
 		if !strings.Contains(err.Error(), s) {
-			t.Errorf("error string check failed. \nExpected to contain: %s\nGot                : %s\n", s, err.Error())
+			t.Errorf("Error string check failed. \nExpected to contain: %s\nGot                : %s\n", s, err.Error())
 			return false
 		}
 
 		return true
+	}
+}
+
+func All(expected ...ErrorAssertionFunc) ErrorAssertionFunc {
+	return func(t TestingT, err error) bool {
+		if h, ok := t.(interface{ Helper() }); ok {
+			h.Helper()
+		}
+
+		ret := true
+		for _, fn := range expected {
+			ok := fn(t, err)
+			if !ok {
+				ret = ok
+			}
+		}
+
+		return ret
 	}
 }
