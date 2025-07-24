@@ -50,3 +50,17 @@ updates:
       main:
         patterns:
           - "*"
+
+  - package-ecosystem: "gomod"
+    directory: "/tst"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "[tst]"
+      include: "scope"
+    allow:
+      - dependency-type: all
+    groups:
+      main:
+        patterns:
+          - "*"

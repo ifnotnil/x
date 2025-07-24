@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: tst
+
+on:
+  workflow_dispatch: {}
+
+  push:
+    branches: [ main ]
+
+  pull_request:
+    branches: [ main ]
+    paths:
+      - .golangci.yml
+      - tools/**
+      - .github/workflows/ci.yml
+      - .github/workflows/sub_tst.yml
+      - tst/**
+
+jobs:
+
+  ci:
+    uses: ./.github/workflows/ci.yml
+    with:
+      mod_path: tst
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

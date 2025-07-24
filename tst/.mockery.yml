@@ -1,0 +1,23 @@
+# https://vektra.github.io/mockery/v3.5/configuration/
+
+log-level: info
+formatter: goimports
+force-file-write: true
+require-template-schema-exists: true
+
+all: true
+recursive: false
+dir: '{{.InterfaceDir}}'
+filename: mocks_test.go
+pkgname: '{{.SrcPackageName}}'
+structname: '{{.Mock}}{{.InterfaceName}}'
+
+# https://vektra.github.io/mockery/v3.5/template/
+template: testify
+template-schema: '{{.Template}}.schema.json'
+
+packages:
+  github.com/ifnotnil/x/tst:
+    config:
+        all: true
+        recursive: true

@@ -27,3 +27,16 @@ A [knadh/koanf](github.com/knadh/koanf) boilerplate with some helpers.
 [![codecov](https://codecov.io/gh/ifnotnil/x/graph/badge.svg?token=n0t9q5Y3Sf&component=conf)](https://codecov.io/gh/ifnotnil/x)
 
 Install: `go get -u github.com/ifnotnil/x/conf`
+
+## tst
+
+A test helper package providing error assertion test functions.
+
+[Readme](tst/README.md) &emsp; &emsp;
+[![ci](https://github.com/ifnotnil/x/actions/workflows/sub_tst.yml/badge.svg)](https://github.com/ifnotnil/x/actions/workflows/sub_tst.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ifnotnil/x/tst)](https://goreportcard.com/report/github.com/ifnotnil/x/tst)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/ifnotnit/x/tst)](https://pkg.go.dev/github.com/ifnotnil/x/tst)
+[![Version](https://img.shields.io/github/v/tag/ifnotnil/x?filter=tst%2F*)](https://pkg.go.dev/github.com/ifnotnil/x/tst?tab=versions)
+[![codecov](https://codecov.io/gh/ifnotnil/x/graph/badge.svg?token=n0t9q5Y3Sf&component=tst)](https://codecov.io/gh/ifnotnil/x)
+
+Install: `go get -u github.com/ifnotnil/x/tst`
