@@ -350,6 +350,7 @@ func contains(s string) any {
 	})
 }
 
+//nolint:thelper
 func TestTestifyIntegration(t *testing.T) {
 	tests := []struct {
 		name               string
