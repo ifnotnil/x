@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"io"
@@ -12,12 +13,12 @@ import (
 
 func EchoHandler(logger *slog.Logger) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		defer func() {
+		defer func(ctx context.Context) {
 			err := DrainAndCloseRequest(r)
 			if err != nil {
-				logger.Error("error during draining and closing request", slog.String("error", err.Error()))
+				logger.ErrorContext(ctx, "error during draining and closing request", slog.String("error", err.Error()))
 			}
-		}()
+		}(r.Context())
 
 		b, _ := UnpackRequest(r)
 
@@ -25,7 +26,7 @@ func EchoHandler(logger *slog.Logger) func(http.ResponseWriter, *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		err := json.NewEncoder(w).Encode(b)
 		if err != nil {
-			logger.Error("error during json encoding", slog.String("error", err.Error()))
+			logger.ErrorContext(r.Context(), "error during json encoding", slog.String("error", err.Error()))
 		}
 	}
 }
