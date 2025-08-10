@@ -11,6 +11,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNoError(t *testing.T) {
@@ -410,6 +411,23 @@ func TestTestifyIntegration(t *testing.T) {
 			tc.run(t, mt, f)
 		})
 	}
+
+	t.Run("mismatch of T", func(t *testing.T) {
+		t.Run("require testingT", func(t *testing.T) {
+			mt := &testifyRequireTestingTMock{}
+			mt.On("Errorf", "Wrong TestingT type %T", mock.Anything).Once()
+			mt.On("FailNow").Once()
+
+			NoError().AsRequire()(mt, nil)
+		})
+		t.Run("assert testingT", func(t *testing.T) {
+			mt := &testifyAssertTestingTMock{}
+			mt.On("Errorf", "Wrong TestingT type %T", mock.Anything).Once()
+
+			got := NoError().AsAssert()(mt, nil)
+			assert.False(t, got)
+		})
+	})
 }
 
 func TestAll(t *testing.T) {
@@ -565,4 +583,36 @@ func TestFail(t *testing.T) {
 			tc.asserter(t, tc.input)
 		})
 	}
+}
+
+var _ (assert.TestingT) = (*testifyAssertTestingTMock)(nil)
+
+type testifyAssertTestingTMock struct {
+	mock.Mock
+}
+
+func (m *testifyAssertTestingTMock) Errorf(format string, args ...any) {
+	if len(args) > 0 {
+		m.Called(format, args)
+	} else {
+		m.Called(format)
+	}
+}
+
+var _ (require.TestingT) = (*testifyRequireTestingTMock)(nil)
+
+type testifyRequireTestingTMock struct {
+	mock.Mock
+}
+
+func (m *testifyRequireTestingTMock) Errorf(format string, args ...any) {
+	if len(args) > 0 {
+		m.Called(format, args)
+	} else {
+		m.Called(format)
+	}
+}
+
+func (m *testifyRequireTestingTMock) FailNow() {
+	m.Called()
 }

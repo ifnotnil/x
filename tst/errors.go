@@ -23,10 +23,10 @@ type ErrorAssertionFunc func(t TestingT, err error) bool
 func (e ErrorAssertionFunc) AsRequire() require.ErrorAssertionFunc {
 	return func(tt require.TestingT, err error, _ ...any) {
 		t, is := tt.(TestingT)
-		if !is {
-			// not possible
+		if !is { // not possible
 			tt.Errorf("Wrong TestingT type %T", tt)
 			tt.FailNow()
+			return
 		}
 
 		if suc := e(t, err); !suc {
@@ -38,13 +38,12 @@ func (e ErrorAssertionFunc) AsRequire() require.ErrorAssertionFunc {
 func (e ErrorAssertionFunc) AsAssert() assert.ErrorAssertionFunc {
 	return func(tt assert.TestingT, err error, _ ...any) bool {
 		t, is := tt.(TestingT)
-		if is {
-			return e(t, err)
+		if !is { // not possible
+			tt.Errorf("Wrong TestingT type %T", tt)
+			return false
 		}
 
-		// not possible
-		tt.Errorf("Wrong TestingT type %T", tt)
-		return false
+		return e(t, err)
 	}
 }
 
