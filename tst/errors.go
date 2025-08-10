@@ -15,13 +15,21 @@ const expectedError = "Expected error but none received"
 type TestingT interface {
 	Errorf(format string, args ...interface{})
 	FailNow()
+	Helper()
 }
 
 type ErrorAssertionFunc func(t TestingT, err error) bool
 
 func (e ErrorAssertionFunc) AsRequire() require.ErrorAssertionFunc {
 	return func(tt require.TestingT, err error, _ ...any) {
-		if suc := e(tt, err); !suc {
+		t, is := tt.(TestingT)
+		if !is { // not possible
+			tt.Errorf("Wrong TestingT type %T", tt)
+			tt.FailNow()
+			return
+		}
+
+		if suc := e(t, err); !suc {
 			tt.FailNow()
 		}
 	}
@@ -30,21 +38,18 @@ func (e ErrorAssertionFunc) AsRequire() require.ErrorAssertionFunc {
 func (e ErrorAssertionFunc) AsAssert() assert.ErrorAssertionFunc {
 	return func(tt assert.TestingT, err error, _ ...any) bool {
 		t, is := tt.(TestingT)
-		if is {
-			return e(t, err)
+		if !is { // not possible
+			tt.Errorf("Wrong TestingT type %T", tt)
+			return false
 		}
 
-		// not possible
-		tt.Errorf("Wrong TestingT type %T", tt)
-		return false
+		return e(t, err)
 	}
 }
 
 func NoError() ErrorAssertionFunc {
 	return func(t TestingT, err error) bool {
-		if h, ok := t.(interface{ Helper() }); ok {
-			h.Helper()
-		}
+		t.Helper()
 
 		if err != nil {
 			t.Errorf("Expected nil error but received : %T(%s)", err, err.Error())
@@ -57,9 +62,7 @@ func NoError() ErrorAssertionFunc {
 
 func Error() ErrorAssertionFunc {
 	return func(t TestingT, err error) bool {
-		if h, ok := t.(interface{ Helper() }); ok {
-			h.Helper()
-		}
+		t.Helper()
 
 		if err == nil {
 			t.Errorf(expectedError)
@@ -76,9 +79,8 @@ func Error() ErrorAssertionFunc {
 // Returns false if the error is nil or doesn't match any expected errors.
 func ErrorIs(allExpectedErrors ...error) ErrorAssertionFunc {
 	return func(t TestingT, err error) bool {
-		if h, ok := t.(interface{ Helper() }); ok {
-			h.Helper()
-		}
+		t.Helper()
+
 		if err == nil {
 			t.Errorf(expectedError)
 			return false
@@ -121,9 +123,7 @@ func ErrorIs(allExpectedErrors ...error) ErrorAssertionFunc {
 
 func ErrorOfType[T error](typedAsserts ...func(TestingT, T)) ErrorAssertionFunc {
 	return func(t TestingT, err error) bool {
-		if h, ok := t.(interface{ Helper() }); ok {
-			h.Helper()
-		}
+		t.Helper()
 
 		if err == nil {
 			t.Errorf(expectedError)
@@ -152,9 +152,7 @@ func ErrorOfType[T error](typedAsserts ...func(TestingT, T)) ErrorAssertionFunc 
 
 func ErrorStringContains(s string) ErrorAssertionFunc {
 	return func(t TestingT, err error) bool {
-		if h, ok := t.(interface{ Helper() }); ok {
-			h.Helper()
-		}
+		t.Helper()
 
 		if err == nil {
 			t.Errorf(expectedError)
@@ -173,9 +171,7 @@ func ErrorStringContains(s string) ErrorAssertionFunc {
 
 func All(expected ...ErrorAssertionFunc) ErrorAssertionFunc {
 	return func(t TestingT, err error) bool {
-		if h, ok := t.(interface{ Helper() }); ok {
-			h.Helper()
-		}
+		t.Helper()
 
 		ret := true
 		for _, fn := range expected {

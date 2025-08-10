@@ -121,3 +121,36 @@ func (_c *MockTestingT_FailNow_Call) RunAndReturn(run func()) *MockTestingT_Fail
 	_c.Run(run)
 	return _c
 }
+
+// Helper provides a mock function for the type MockTestingT
+func (_mock *MockTestingT) Helper() {
+	_mock.Called()
+	return
+}
+
+// MockTestingT_Helper_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Helper'
+type MockTestingT_Helper_Call struct {
+	*mock.Call
+}
+
+// Helper is a helper method to define mock.On call
+func (_e *MockTestingT_Expecter) Helper() *MockTestingT_Helper_Call {
+	return &MockTestingT_Helper_Call{Call: _e.mock.On("Helper")}
+}
+
+func (_c *MockTestingT_Helper_Call) Run(run func()) *MockTestingT_Helper_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockTestingT_Helper_Call) Return() *MockTestingT_Helper_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockTestingT_Helper_Call) RunAndReturn(run func()) *MockTestingT_Helper_Call {
+	_c.Run(run)
+	return _c
+}
