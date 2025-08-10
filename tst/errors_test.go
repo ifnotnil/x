@@ -249,6 +249,7 @@ func TestErrorOfType(t *testing.T) {
 		pathErr := &os.PathError{Op: "open", Path: "/test", Err: baseErr}
 
 		mt := NewMockTestingT(t)
+		mt.EXPECT().Helper().Maybe()
 		ma := &mockErrorTypedAssertionFunc{}
 		ma.OnAssert(mt, pathErr).Return(true).Times(3)
 
@@ -337,6 +338,7 @@ type errorAssertionFuncTestCase struct {
 
 func (tc errorAssertionFuncTestCase) Test(t *testing.T) {
 	mt := NewMockTestingT(t)
+	mt.EXPECT().Helper().Maybe()
 	if tc.initMock != nil {
 		tc.initMock(mt)
 	}
@@ -402,6 +404,7 @@ func TestTestifyIntegration(t *testing.T) {
 
 			// mock T init
 			mt := NewMockTestingT(t)
+			mt.EXPECT().Helper().Maybe()
 			tc.mockTInit(mt)
 
 			tc.run(t, mt, f)
@@ -450,6 +453,7 @@ func TestAll(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mt := NewMockTestingT(t)
+			mt.EXPECT().Helper().Maybe()
 			result := All(tt.assertionFuncs...)(mt, errors.New("test error"))
 			assert.Equal(t, tt.expectResult, result)
 		})
