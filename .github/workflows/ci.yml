@@ -61,7 +61,7 @@ jobs:
     runs-on: "${{ matrix.os }}"
     steps:
       # https://github.com/actions/checkout
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # https://github.com/actions/setup-go/
       - name: Set up Go
@@ -101,7 +101,7 @@ jobs:
     runs-on: "${{ matrix.os }}"
     steps:
       # https://github.com/actions/checkout
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # https://github.com/actions/setup-go/
       - name: Set up Go
@@ -134,7 +134,7 @@ jobs:
         working-directory: ./${{ inputs.mod_path }}
     steps:
       # https://github.com/actions/checkout
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # https://github.com/actions/setup-go/
       - name: set up go
