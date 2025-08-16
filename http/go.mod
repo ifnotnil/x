@@ -1,6 +1,6 @@
 module github.com/ifnotnil/x/http
 
-go 1.23.0
+go 1.24.0
 
 require (
 	github.com/andybalholm/brotli v1.2.0
