@@ -1,6 +1,6 @@
 module github.com/ifnotnil/x/conf
 
-go 1.23.0
+go 1.24.0
 
 require (
 	github.com/knadh/koanf/parsers/dotenv v1.1.0
