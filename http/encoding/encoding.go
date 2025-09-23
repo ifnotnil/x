@@ -46,7 +46,7 @@ func RFC5987ExtendedNotationParameterValue(parameterValue string) (charset strin
 	value = decodedValue
 
 	if strings.ToUpper(charset) == "UTF-8" {
-		return
+		return charset, lang, value, err
 	}
 
 	enc, er := encodingFromCharset(charset)
@@ -59,7 +59,7 @@ func RFC5987ExtendedNotationParameterValue(parameterValue string) (charset strin
 		return "", "", "", errors.Join(ErrRFC5987ParameterValueMalformed, er)
 	}
 
-	return
+	return charset, lang, value, err
 }
 
 var (

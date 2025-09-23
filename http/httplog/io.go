@@ -121,7 +121,7 @@ func (r *teeReadCloser) Read(p []byte) (n int, err error) {
 		}
 	}
 
-	return
+	return n, err
 }
 
 func (r *teeReadCloser) Buffer() *bytes.Buffer { return r.buf }
