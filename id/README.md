@@ -5,3 +5,6 @@
 [![Version](https://img.shields.io/github/v/tag/ifnotnil/x?filter=id%2F*)](https://pkg.go.dev/github.com/ifnotnil/x/id?tab=versions)
 [![codecov](https://codecov.io/gh/ifnotnil/x/graph/badge.svg?token=n0t9q5Y3Sf&component=id)](https://codecov.io/gh/ifnotnil/x)
 
+URL Safe base64 and base 62 wrappers of uuid for text representation.
+
+The wrappers work with generics of `~[16]byte` so both `gofrs` and `google` uuid can be wrapped.
