@@ -45,7 +45,7 @@ func (u Base64UUID[U]) MarshalJSON() ([]byte, error) {
 	if sub, err := u.AppendText(b[1:]); err != nil {
 		return nil, err
 	} else {
-		b = b[:len(sub)+1]
+		b = b[:len(sub)+1] // the appended text plus the " character.
 	}
 	b = append(b, '"')
 
@@ -64,7 +64,7 @@ func (u *Base64UUID[U]) UnmarshalJSON(b []byte) error {
 
 func (u Base64UUID[U]) AppendText(b []byte) ([]byte, error) {
 	b = slices.Grow(b, base64UUIDEncodedLen)
-	b = b[:len(b)+base64UUIDEncodedLen]
+	b = b[:len(b)+base64UUIDEncodedLen] // safe since we already grew the buffer.
 	Base64.Encode(b, u.Value[:])
 	return b, nil
 }
