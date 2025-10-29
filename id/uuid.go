@@ -42,9 +42,11 @@ func (u Base64UUID[U]) IsZero() bool {
 func (u Base64UUID[U]) MarshalJSON() ([]byte, error) {
 	b := make([]byte, 1, base64UUIDEncodedLenJSON)
 	b[0] = '"'
-	sub := b[1:][:base64UUIDEncodedLen]
-	Base64.Encode(sub, u.Value[:])
-	b = b[0 : base64UUIDEncodedLenJSON-1]
+	if sub, err := u.AppendText(b[1:]); err != nil {
+		return nil, err
+	} else {
+		b = b[:len(sub)+1]
+	}
 	b = append(b, '"')
 
 	return b, nil
