@@ -1,9 +1,11 @@
 package id
 
 import (
+	"encoding"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"slices"
 )
 
 // In URL parameters, the following characters are considered safe and do not need encoding [rfc3986](https://www.rfc-editor.org/rfc/rfc3986.html#section-3.1):
@@ -55,16 +57,33 @@ func (u *Base64UUID[U]) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	decBytes, err := Base64.DecodeString(s)
+	return u.UnmarshalText([]byte(s))
+}
+
+func (u Base64UUID[U]) AppendText(b []byte) ([]byte, error) {
+	b = slices.Grow(b, base64UUIDEncodedLen)
+	b = b[:len(b)+base64UUIDEncodedLen]
+	Base64.Encode(b, u.Value[:])
+	return b, nil
+}
+
+func (u Base64UUID[U]) MarshalText() ([]byte, error) {
+	return u.AppendText(nil)
+}
+
+func (u *Base64UUID[U]) UnmarshalText(text []byte) error {
+	dec := [uuidSize]byte{}
+
+	n, err := Base64.Decode(dec[:], text)
 	if err != nil {
 		return err
 	}
 
-	if len(decBytes) != uuidSize {
+	if n != uuidSize {
 		return ErrMalformedUUID
 	}
 
-	copy(u.Value[:], decBytes)
+	u.Value = dec
 
 	return nil
 }
@@ -72,6 +91,9 @@ func (u *Base64UUID[U]) UnmarshalJSON(b []byte) error {
 var ErrMalformedUUID = errors.New("malformed uuid")
 
 var (
-	_ json.Marshaler   = (*Base64UUID[[uuidSize]byte])(nil)
-	_ json.Unmarshaler = (*Base64UUID[[uuidSize]byte])(nil)
+	_ json.Marshaler           = (*Base64UUID[[uuidSize]byte])(nil)
+	_ json.Unmarshaler         = (*Base64UUID[[uuidSize]byte])(nil)
+	_ encoding.TextAppender    = (*Base64UUID[[uuidSize]byte])(nil)
+	_ encoding.TextMarshaler   = (*Base64UUID[[uuidSize]byte])(nil)
+	_ encoding.TextUnmarshaler = (*Base64UUID[[uuidSize]byte])(nil)
 )
