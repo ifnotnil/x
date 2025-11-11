@@ -11,7 +11,7 @@ import (
 )
 
 func AsRequireErrorAssertionFunc(ea ErrorAssertion) require.ErrorAssertionFunc {
-	return func(t require.TestingT, err error, _ ...interface{}) {
+	return func(t require.TestingT, err error, _ ...any) {
 		if h, ok := t.(tHelper); ok {
 			h.Helper()
 		}
@@ -24,7 +24,7 @@ func AsRequireErrorAssertionFunc(ea ErrorAssertion) require.ErrorAssertionFunc {
 }
 
 func AsAssertErrorAssertionFunc(ea ErrorAssertion) assert.ErrorAssertionFunc {
-	return func(t assert.TestingT, err error, _ ...interface{}) bool {
+	return func(t assert.TestingT, err error, _ ...any) bool {
 		if h, ok := t.(tHelper); ok {
 			h.Helper()
 		}
@@ -33,7 +33,7 @@ func AsAssertErrorAssertionFunc(ea ErrorAssertion) assert.ErrorAssertionFunc {
 }
 
 type TestingT interface {
-	Errorf(format string, args ...interface{})
+	Errorf(format string, args ...any)
 }
 
 type tFailNow interface {
