@@ -13,7 +13,7 @@ import (
 const expectedError = "Expected error but none received"
 
 type TestingT interface {
-	Errorf(format string, args ...interface{})
+	Errorf(format string, args ...any)
 	FailNow()
 	Helper()
 }
