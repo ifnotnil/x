@@ -36,7 +36,7 @@ func (_m *MockTestingT) EXPECT() *MockTestingT_Expecter {
 }
 
 // Errorf provides a mock function for the type MockTestingT
-func (_mock *MockTestingT) Errorf(format string, args ...interface{}) {
+func (_mock *MockTestingT) Errorf(format string, args ...any) {
 	if len(args) > 0 {
 		_mock.Called(format, args)
 	} else {
@@ -53,22 +53,22 @@ type MockTestingT_Errorf_Call struct {
 
 // Errorf is a helper method to define mock.On call
 //   - format string
-//   - args ...interface{}
+//   - args ...any
 func (_e *MockTestingT_Expecter) Errorf(format interface{}, args ...interface{}) *MockTestingT_Errorf_Call {
 	return &MockTestingT_Errorf_Call{Call: _e.mock.On("Errorf",
 		append([]interface{}{format}, args...)...)}
 }
 
-func (_c *MockTestingT_Errorf_Call) Run(run func(format string, args ...interface{})) *MockTestingT_Errorf_Call {
+func (_c *MockTestingT_Errorf_Call) Run(run func(format string, args ...any)) *MockTestingT_Errorf_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
 			arg0 = args[0].(string)
 		}
-		var arg1 []interface{}
-		var variadicArgs []interface{}
+		var arg1 []any
+		var variadicArgs []any
 		if len(args) > 1 {
-			variadicArgs = args[1].([]interface{})
+			variadicArgs = args[1].([]any)
 		}
 		arg1 = variadicArgs
 		run(
@@ -84,7 +84,7 @@ func (_c *MockTestingT_Errorf_Call) Return() *MockTestingT_Errorf_Call {
 	return _c
 }
 
-func (_c *MockTestingT_Errorf_Call) RunAndReturn(run func(format string, args ...interface{})) *MockTestingT_Errorf_Call {
+func (_c *MockTestingT_Errorf_Call) RunAndReturn(run func(format string, args ...any)) *MockTestingT_Errorf_Call {
 	_c.Run(run)
 	return _c
 }
