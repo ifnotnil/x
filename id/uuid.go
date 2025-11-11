@@ -2,57 +2,58 @@ package id
 
 import (
 	"encoding"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"slices"
 )
 
-// In URL parameters, the following characters are considered safe and do not need encoding [rfc3986](https://www.rfc-editor.org/rfc/rfc3986.html#section-3.1):
-// Alphabetic characters: A-Z, a-z
-// Digits: 0-9
-// Hyphen: -
-// Underscore: _
-// Period: .
-// Tilde: ~
-
-// Base64 is a [base64.Encoding] based on [base64.URLEncoding] without padding character.
-// alphabet of base64: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_
-var (
-	Base64            = base64.URLEncoding.WithPadding(base64.NoPadding)
-	Base64WithPadding = base64.URLEncoding.WithPadding('~')
-)
-
-var (
-	base64UUIDEncodedLen     = Base64.EncodedLen(uuidSize)
-	base64UUIDEncodedLenJSON = base64UUIDEncodedLen + 2
-	zeroUUID                 = [uuidSize]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-)
-
 const uuidSize = 16
 
-type Base64UUID[U ~[uuidSize]byte] struct {
-	Value U
+type Encoding interface {
+	// encode(dst, src []byte)
+	appendEncode(dst, src []byte) []byte
+	// encodeToString(src []byte) string
+	encodedLen(n int) int
+	// appendDecode(dst, src []byte) ([]byte, error)
+	// decodeString(s string) ([]byte, error)
+	decode(dst, src []byte) (n int, err error)
+	decodedLen(n int) int
 }
 
-func (u Base64UUID[U]) IsZero() bool {
+type ID[UUID ~[uuidSize]byte, Enc Encoding] struct {
+	Value UUID
+}
+
+func (u ID[UUID, Enc]) IsZero() bool {
 	return u.Value == zeroUUID
 }
 
-func (u Base64UUID[U]) MarshalJSON() ([]byte, error) {
-	b := make([]byte, 1, base64UUIDEncodedLenJSON)
+func (u ID[UUID, Enc]) MarshalJSON() ([]byte, error) {
+	var enc Enc
+	ln := enc.encodedLen(uuidSize)
+	b := make([]byte, 1, ln+2)
 	b[0] = '"'
-	if sub, err := u.AppendText(b[1:]); err != nil {
-		return nil, err
-	} else {
-		b = b[:len(sub)+1] // the appended text plus the " character.
-	}
+
+	b = enc.appendEncode(b, u.Value[:])
+
 	b = append(b, '"')
 
 	return b, nil
 }
 
-func (u *Base64UUID[U]) UnmarshalJSON(b []byte) error {
+func (u ID[UUID, Enc]) AppendText(b []byte) ([]byte, error) {
+	var enc Enc
+	ln := enc.encodedLen(uuidSize)
+
+	b = slices.Grow(b, ln)
+	return enc.appendEncode(b, u.Value[:]), nil
+}
+
+func (u ID[UUID, Enc]) MarshalText() ([]byte, error) {
+	return u.AppendText(nil)
+}
+
+func (u *ID[UUID, Enc]) UnmarshalJSON(b []byte) error {
 	var s string
 	err := json.Unmarshal(b, &s)
 	if err != nil {
@@ -62,21 +63,11 @@ func (u *Base64UUID[U]) UnmarshalJSON(b []byte) error {
 	return u.UnmarshalText([]byte(s))
 }
 
-func (u Base64UUID[U]) AppendText(b []byte) ([]byte, error) {
-	b = slices.Grow(b, base64UUIDEncodedLen)
-	b = b[:len(b)+base64UUIDEncodedLen] // safe since we already grew the buffer.
-	Base64.Encode(b, u.Value[:])
-	return b, nil
-}
-
-func (u Base64UUID[U]) MarshalText() ([]byte, error) {
-	return u.AppendText(nil)
-}
-
-func (u *Base64UUID[U]) UnmarshalText(text []byte) error {
+func (u *ID[UUID, Enc]) UnmarshalText(text []byte) error {
+	var enc Enc
 	dec := [uuidSize]byte{}
 
-	n, err := Base64.Decode(dec[:], text)
+	n, err := enc.decode(dec[:], text)
 	if err != nil {
 		return err
 	}
@@ -90,12 +81,14 @@ func (u *Base64UUID[U]) UnmarshalText(text []byte) error {
 	return nil
 }
 
+var (
+	_ json.Marshaler           = (*ID[[uuidSize]byte, Base64])(nil)
+	_ json.Unmarshaler         = (*ID[[uuidSize]byte, Base64])(nil)
+	_ encoding.TextAppender    = (*ID[[uuidSize]byte, Base64])(nil)
+	_ encoding.TextMarshaler   = (*ID[[uuidSize]byte, Base64])(nil)
+	_ encoding.TextUnmarshaler = (*ID[[uuidSize]byte, Base64])(nil)
+)
+
 var ErrMalformedUUID = errors.New("malformed uuid")
 
-var (
-	_ json.Marshaler           = (*Base64UUID[[uuidSize]byte])(nil)
-	_ json.Unmarshaler         = (*Base64UUID[[uuidSize]byte])(nil)
-	_ encoding.TextAppender    = (*Base64UUID[[uuidSize]byte])(nil)
-	_ encoding.TextMarshaler   = (*Base64UUID[[uuidSize]byte])(nil)
-	_ encoding.TextUnmarshaler = (*Base64UUID[[uuidSize]byte])(nil)
-)
+var zeroUUID = [uuidSize]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
