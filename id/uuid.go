@@ -4,13 +4,12 @@ import (
 	"encoding"
 	"encoding/json"
 	"errors"
-	"slices"
 )
 
 const uuidSize = 16
 
 type Encoding interface {
-	// encode(dst, src []byte)
+	encode(dst, src []byte)
 	appendEncode(dst, src []byte) []byte
 	// encodeToString(src []byte) string
 	encodedLen(n int) int
@@ -31,8 +30,8 @@ func (u ID[UUID, Enc]) IsZero() bool {
 func (u ID[UUID, Enc]) MarshalJSON() ([]byte, error) {
 	var enc Enc
 	ln := enc.encodedLen(uuidSize)
-	b := make([]byte, 1, ln+2)
-	b[0] = '"'
+	b := make([]byte, 0, ln+2)
+	b = append(b, '"')
 
 	b = enc.appendEncode(b, u.Value[:])
 
@@ -43,9 +42,6 @@ func (u ID[UUID, Enc]) MarshalJSON() ([]byte, error) {
 
 func (u ID[UUID, Enc]) AppendText(b []byte) ([]byte, error) {
 	var enc Enc
-	ln := enc.encodedLen(uuidSize)
-
-	b = slices.Grow(b, ln)
 	return enc.appendEncode(b, u.Value[:]), nil
 }
 
