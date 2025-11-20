@@ -1,14 +1,14 @@
 package id
 
 import (
-	"encoding"
+	eng "encoding"
 	"encoding/json"
 	"errors"
 )
 
 const uuidSize = 16
 
-type Encoding interface {
+type encoding interface {
 	encode(dst, src []byte)
 	appendEncode(dst, src []byte) []byte
 	// encodeToString(src []byte) string
@@ -19,7 +19,7 @@ type Encoding interface {
 	decodedLen(n int) int
 }
 
-type ID[UUID ~[uuidSize]byte, Enc Encoding] struct {
+type ID[UUID ~[uuidSize]byte, Enc encoding] struct {
 	Value UUID
 }
 
@@ -78,11 +78,11 @@ func (u *ID[UUID, Enc]) UnmarshalText(text []byte) error {
 }
 
 var (
-	_ json.Marshaler           = (*ID[[uuidSize]byte, Base64])(nil)
-	_ json.Unmarshaler         = (*ID[[uuidSize]byte, Base64])(nil)
-	_ encoding.TextAppender    = (*ID[[uuidSize]byte, Base64])(nil)
-	_ encoding.TextMarshaler   = (*ID[[uuidSize]byte, Base64])(nil)
-	_ encoding.TextUnmarshaler = (*ID[[uuidSize]byte, Base64])(nil)
+	_ json.Marshaler      = (*ID[[uuidSize]byte, Base64])(nil)
+	_ eng.TextAppender    = (*ID[[uuidSize]byte, Base64])(nil)
+	_ eng.TextMarshaler   = (*ID[[uuidSize]byte, Base64])(nil)
+	_ json.Unmarshaler    = (*ID[[uuidSize]byte, Base64])(nil)
+	_ eng.TextUnmarshaler = (*ID[[uuidSize]byte, Base64])(nil)
 )
 
 var ErrMalformedUUID = errors.New("malformed uuid")

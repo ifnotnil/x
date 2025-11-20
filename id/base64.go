@@ -88,6 +88,6 @@ func (b Base64WithPadding) decodedLen(n int) int {
 }
 
 var (
-	_ Encoding = Base64{}
-	_ Encoding = Base64WithPadding{}
+	_ encoding = Base64{}
+	_ encoding = Base64WithPadding{}
 )
