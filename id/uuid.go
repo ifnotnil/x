@@ -9,14 +9,14 @@ import (
 const uuidSize = 16
 
 type encoding interface {
-	encode(dst, src []byte)
+	// encode(dst, src []byte)
 	appendEncode(dst, src []byte) []byte
 	// encodeToString(src []byte) string
 	encodedLen(n int) int
 	// appendDecode(dst, src []byte) ([]byte, error)
 	// decodeString(s string) ([]byte, error)
 	decode(dst, src []byte) (n int, err error)
-	decodedLen(n int) int
+	// decodedLen(n int) int
 }
 
 type ID[UUID ~[uuidSize]byte, Enc encoding] struct {

@@ -64,6 +64,20 @@ func TestJSONUnmarshal(t *testing.T) {
 			expected:      &FooPointer[Base64WithPadding]{ID: &ID[id, Base64WithPadding]{Value: uuid}},
 			errorAsserter: tst.NoError(),
 		},
+		{
+			name:          "Foo[Base62]",
+			input:         `{"id":"31reJxR0z0LERESS86rDe"}`,
+			destination:   &Foo[Base62]{ID: ID[id, Base62]{Value: zeroUUID}},
+			expected:      &Foo[Base62]{ID: ID[id, Base62]{Value: uuid}},
+			errorAsserter: tst.NoError(),
+		},
+		{
+			name:          "FooPointer[Base62]",
+			input:         `{"id":"31reJxR0z0LERESS86rDe"}`,
+			destination:   &FooPointer[Base62]{ID: nil},
+			expected:      &FooPointer[Base62]{ID: &ID[id, Base62]{Value: uuid}},
+			errorAsserter: tst.NoError(),
+		},
 	}
 
 	for _, tc := range unmarshalTests {
@@ -145,6 +159,12 @@ func TestJSONMarshal(t *testing.T) {
 			name:          "Foo[Base64] uuid",
 			input:         Foo[Base64]{ID: ID[id, Base64]{Value: uuid}},
 			expectedJSON:  jsBase64,
+			errorAsserter: tst.NoError(),
+		},
+		{
+			name:          "Foo[Base62] uuid",
+			input:         Foo[Base62]{ID: ID[id, Base62]{Value: uuid}},
+			expectedJSON:  `{"id":"31reJxR0z0LERESS86rDe"}`,
 			errorAsserter: tst.NoError(),
 		},
 		{
