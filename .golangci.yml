@@ -45,6 +45,16 @@ linters:
     - embeddedstructfieldcheck # todo: reconsider
 
   settings:
+    revive:
+      rules:
+        - name: var-naming
+          severity: error
+          disabled: false
+          exclude: [""]
+          arguments:
+            - [] # AllowList
+            - [] # DenyList
+            - - skip-package-name-collision-with-go-std: true
     govet:
       enable-all: true
       settings:
