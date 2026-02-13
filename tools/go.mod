@@ -1,6 +1,6 @@
 module github.com/ifnotnil/x/tools
 
-go 1.25.0
+go 1.24
 
 // tools version goes here.
 // this go.mod is not used to actually run the tools, only to store the version.
