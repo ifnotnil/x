@@ -14,7 +14,7 @@ on:
       test-go-versions:
         description: 'List of golang versions to run tests. Format is json array of string.'
         required: false
-        default: '["1.24", "1.25"]'
+        default: '["1.25", "1.26"]'
         type: string
       test-os:
         description: 'The OS to run tests. Format is json array of string.'
@@ -25,7 +25,7 @@ on:
       test-cover-go-versions:
         description: 'List of golang versions to run tests with cover. Format is json array of string.'
         required: false
-        default: '["1.25"]'
+        default: '["1.26"]'
         type: string
       test-cover-os:
         description: 'The OS to run tests with cover. Format is json array of string.'
@@ -36,7 +36,7 @@ on:
       lint-go-versions:
         description: 'List of golang versions to run linters. Format is json array of string.'
         required: false
-        default: '["1.24"]'
+        default: '["1.25"]'
         type: string
       lint-os:
         description: 'The OS to run linters. Format is json array of string.'
