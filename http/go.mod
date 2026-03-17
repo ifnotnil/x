@@ -1,11 +1,11 @@
 module github.com/ifnotnil/x/http
 
-go 1.25
+go 1.25.0
 
 require (
 	github.com/andybalholm/brotli v1.2.0
 	github.com/klauspost/compress v1.18.4
-	golang.org/x/text v0.34.0
+	golang.org/x/text v0.35.0
 )
 
 // Test dependencies. They will not be pushed downstream as indirect ones.
