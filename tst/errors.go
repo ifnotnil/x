@@ -102,17 +102,17 @@ func ErrorIs(allExpectedErrors ...error) ErrorAssertionFunc {
 		if !suc {
 			sb := strings.Builder{}
 			sb.WriteString("Error is unexpected.\n")
-			sb.WriteString(fmt.Sprintf("Got error      : %T(%s)\n", err, err.Error()))
+			fmt.Fprintf(&sb, "Got error      : %T(%s)\n", err, err.Error())
 
 			if len(notMatched) == 1 {
-				sb.WriteString(fmt.Sprintf("Expected error : %T(%s)\n", notMatched[0], notMatched[0].Error()))
+				fmt.Fprintf(&sb, "Expected error : %T(%s)\n", notMatched[0], notMatched[0].Error())
 				t.Errorf(sb.String())
 				return suc
 			}
 
 			sb.WriteString("Expected errors:\n")
 			for _, e := range notMatched {
-				sb.WriteString(fmt.Sprintf("        -> %T(%s)\n", e, e.Error()))
+				fmt.Fprintf(&sb, "        -> %T(%s)\n", e, e.Error())
 			}
 			t.Errorf(sb.String())
 		}
