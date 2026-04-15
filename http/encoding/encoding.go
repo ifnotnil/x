@@ -1,7 +1,6 @@
 package encoding
 
 import (
-	"encoding/base64"
 	"errors"
 	"net/url"
 	"strings"
@@ -15,16 +14,6 @@ import (
 	"golang.org/x/text/encoding/traditionalchinese"
 	"golang.org/x/text/encoding/unicode"
 )
-
-// URLSafeBase64 returns a [base64.Encoding] based on [base64.URLEncoding] replacing the default padding character ('=') padding character to a url safe one ('~').
-// In URL parameters, the following characters are considered safe and do not need encoding [rfc3986](https://www.rfc-editor.org/rfc/rfc3986.html#section-3.1):
-// Alphabetic characters: A-Z, a-z
-// Digits: 0-9
-// Hyphen: -
-// Underscore: _
-// Period: .
-// Tilde: ~
-var URLSafeBase64 = base64.URLEncoding.WithPadding('~')
 
 // RFC5987ExtendedNotationParameterValue decodes RFC 5987 encoded filenames expecting the extended notation
 // (charset  "'" [ language ] "'" value-chars)

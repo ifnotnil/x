@@ -34,6 +34,10 @@ component_management:
       name: tst
       paths:
         - "tst/"
+    - component_id: id
+      name: id
+      paths:
+        - "id/"
 
 ignore:
   - "http/internal/testingx" # test helpers

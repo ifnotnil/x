@@ -52,6 +52,20 @@ updates:
           - "*"
 
   - package-ecosystem: "gomod"
+    directory: "/id"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "[id]"
+      include: "scope"
+    allow:
+      - dependency-type: all
+    groups:
+      main:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "gomod"
     directory: "/tst"
     schedule:
       interval: "daily"
