@@ -4,8 +4,8 @@ go 1.25.0
 
 require (
 	github.com/andybalholm/brotli v1.2.1
-	github.com/klauspost/compress v1.18.5
-	golang.org/x/text v0.36.0
+	github.com/klauspost/compress v1.18.6
+	golang.org/x/text v0.37.0
 )
 
 // Test dependencies. They will not be pushed downstream as indirect ones.
