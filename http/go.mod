@@ -3,7 +3,7 @@ module github.com/ifnotnil/x/http
 go 1.26.0
 
 require (
-	github.com/andybalholm/brotli v1.2.6
+	github.com/andybalholm/brotli v1.2.7
 	github.com/klauspost/compress v1.20.3
 	golang.org/x/text v0.43.0
 )
