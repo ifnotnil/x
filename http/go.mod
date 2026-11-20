@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/andybalholm/brotli v1.3.0
-	github.com/klauspost/compress v1.20.4
+	github.com/klauspost/compress v1.20.5
 	golang.org/x/text v0.44.0
 )
 
