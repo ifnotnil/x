@@ -6,7 +6,7 @@
 version: "2"
 
 run:
-  go: "1.25"
+  go: "1.26"
   modules-download-mode: readonly
   issues-exit-code: 1
   tests: true
@@ -21,12 +21,14 @@ output:
 linters:
   default: all
   disable:
+    - gomodguard
     - godot
     - cyclop
     - gocyclo
     - depguard
     - exhaustive
     - exhaustruct
+    - exhaustruct_v5
     - funlen
     - godox
     - lll

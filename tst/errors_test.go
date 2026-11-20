@@ -585,7 +585,7 @@ func TestFail(t *testing.T) {
 	}
 }
 
-var _ (assert.TestingT) = (*testifyAssertTestingTMock)(nil)
+var _ assert.TestingT = (*testifyAssertTestingTMock)(nil)
 
 type testifyAssertTestingTMock struct {
 	mock.Mock
@@ -599,7 +599,7 @@ func (m *testifyAssertTestingTMock) Errorf(format string, args ...any) {
 	}
 }
 
-var _ (require.TestingT) = (*testifyRequireTestingTMock)(nil)
+var _ require.TestingT = (*testifyRequireTestingTMock)(nil)
 
 type testifyRequireTestingTMock struct {
 	mock.Mock

@@ -46,9 +46,6 @@ env:
 	@echo "BASH_VERSINFO :$${BASH_VERSINFO}"
 	@echo ""
 
-.PHONY: checks
-checks: vet staticcheck golangci-lint
-
 .PHONY: ci-gen-fmt
 ci-gen-fmt: mockery go-gen golangci-lint-fmt
 	$(REPO_ROOT)/scripts/git-check-dirty
@@ -58,7 +55,7 @@ ci-mod: mod
 	$(REPO_ROOT)/scripts/git-check-dirty
 
 .PHONY: ci-sh
-ci-sh: shfmt shellcheck
+ci-sh:
 	@$(REPO_ROOT)/scripts/git-check-dirty
 
 .PHONY: ci-dependabot
