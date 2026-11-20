@@ -21,10 +21,19 @@ func NewMockBytesBuffer(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockBytesBuffer {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockBytesBuffer{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -94,10 +103,19 @@ func NewMockHeaderMatcher(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockHeaderMatcher {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockHeaderMatcher{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -140,7 +158,7 @@ type MockHeaderMatcher_Match_Call struct {
 // Match is a helper method to define mock.On call
 //   - key string
 //   - values []string
-func (_e *MockHeaderMatcher_Expecter) Match(key interface{}, values interface{}) *MockHeaderMatcher_Match_Call {
+func (_e *MockHeaderMatcher_Expecter) Match(key any, values any) *MockHeaderMatcher_Match_Call {
 	return &MockHeaderMatcher_Match_Call{Call: _e.mock.On("Match", key, values)}
 }
 
@@ -178,10 +196,19 @@ func newMocknetHTTPResponse(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *mocknetHTTPResponse {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &mocknetHTTPResponse{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -462,7 +489,7 @@ type mocknetHTTPResponse_ReadFrom_Call struct {
 
 // ReadFrom is a helper method to define mock.On call
 //   - src io.Reader
-func (_e *mocknetHTTPResponse_Expecter) ReadFrom(src interface{}) *mocknetHTTPResponse_ReadFrom_Call {
+func (_e *mocknetHTTPResponse_Expecter) ReadFrom(src any) *mocknetHTTPResponse_ReadFrom_Call {
 	return &mocknetHTTPResponse_ReadFrom_Call{Call: _e.mock.On("ReadFrom", src)}
 }
 
@@ -513,7 +540,7 @@ type mocknetHTTPResponse_SetReadDeadline_Call struct {
 
 // SetReadDeadline is a helper method to define mock.On call
 //   - deadline time.Time
-func (_e *mocknetHTTPResponse_Expecter) SetReadDeadline(deadline interface{}) *mocknetHTTPResponse_SetReadDeadline_Call {
+func (_e *mocknetHTTPResponse_Expecter) SetReadDeadline(deadline any) *mocknetHTTPResponse_SetReadDeadline_Call {
 	return &mocknetHTTPResponse_SetReadDeadline_Call{Call: _e.mock.On("SetReadDeadline", deadline)}
 }
 
@@ -553,7 +580,7 @@ type mocknetHTTPResponse_SetWriteDeadline_Call struct {
 
 // SetWriteDeadline is a helper method to define mock.On call
 //   - deadline time.Time
-func (_e *mocknetHTTPResponse_Expecter) SetWriteDeadline(deadline interface{}) *mocknetHTTPResponse_SetWriteDeadline_Call {
+func (_e *mocknetHTTPResponse_Expecter) SetWriteDeadline(deadline any) *mocknetHTTPResponse_SetWriteDeadline_Call {
 	return &mocknetHTTPResponse_SetWriteDeadline_Call{Call: _e.mock.On("SetWriteDeadline", deadline)}
 }
 
@@ -613,7 +640,7 @@ type mocknetHTTPResponse_Write_Call struct {
 
 // Write is a helper method to define mock.On call
 //   - bytes []byte
-func (_e *mocknetHTTPResponse_Expecter) Write(bytes interface{}) *mocknetHTTPResponse_Write_Call {
+func (_e *mocknetHTTPResponse_Expecter) Write(bytes any) *mocknetHTTPResponse_Write_Call {
 	return &mocknetHTTPResponse_Write_Call{Call: _e.mock.On("Write", bytes)}
 }
 
@@ -653,7 +680,7 @@ type mocknetHTTPResponse_WriteHeader_Call struct {
 
 // WriteHeader is a helper method to define mock.On call
 //   - statusCode int
-func (_e *mocknetHTTPResponse_Expecter) WriteHeader(statusCode interface{}) *mocknetHTTPResponse_WriteHeader_Call {
+func (_e *mocknetHTTPResponse_Expecter) WriteHeader(statusCode any) *mocknetHTTPResponse_WriteHeader_Call {
 	return &mocknetHTTPResponse_WriteHeader_Call{Call: _e.mock.On("WriteHeader", statusCode)}
 }
 
@@ -713,7 +740,7 @@ type mocknetHTTPResponse_WriteString_Call struct {
 
 // WriteString is a helper method to define mock.On call
 //   - data string
-func (_e *mocknetHTTPResponse_Expecter) WriteString(data interface{}) *mocknetHTTPResponse_WriteString_Call {
+func (_e *mocknetHTTPResponse_Expecter) WriteString(data any) *mocknetHTTPResponse_WriteString_Call {
 	return &mocknetHTTPResponse_WriteString_Call{Call: _e.mock.On("WriteString", data)}
 }
 
@@ -746,10 +773,19 @@ func NewMockResponseWriterWrapper(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockResponseWriterWrapper {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockResponseWriterWrapper{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -980,7 +1016,7 @@ type MockResponseWriterWrapper_Write_Call struct {
 
 // Write is a helper method to define mock.On call
 //   - bytes1 []byte
-func (_e *MockResponseWriterWrapper_Expecter) Write(bytes1 interface{}) *MockResponseWriterWrapper_Write_Call {
+func (_e *MockResponseWriterWrapper_Expecter) Write(bytes1 any) *MockResponseWriterWrapper_Write_Call {
 	return &MockResponseWriterWrapper_Write_Call{Call: _e.mock.On("Write", bytes1)}
 }
 
@@ -1020,7 +1056,7 @@ type MockResponseWriterWrapper_WriteHeader_Call struct {
 
 // WriteHeader is a helper method to define mock.On call
 //   - statusCode int
-func (_e *MockResponseWriterWrapper_Expecter) WriteHeader(statusCode interface{}) *MockResponseWriterWrapper_WriteHeader_Call {
+func (_e *MockResponseWriterWrapper_Expecter) WriteHeader(statusCode any) *MockResponseWriterWrapper_WriteHeader_Call {
 	return &MockResponseWriterWrapper_WriteHeader_Call{Call: _e.mock.On("WriteHeader", statusCode)}
 }
 

@@ -14,10 +14,19 @@ func NewMockTestingT(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockTestingT {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockTestingT{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -54,21 +63,21 @@ type MockTestingT_Errorf_Call struct {
 // Errorf is a helper method to define mock.On call
 //   - format string
 //   - args ...any
-func (_e *MockTestingT_Expecter) Errorf(format interface{}, args ...interface{}) *MockTestingT_Errorf_Call {
+func (_e *MockTestingT_Expecter) Errorf(format any, args ...any) *MockTestingT_Errorf_Call {
 	return &MockTestingT_Errorf_Call{Call: _e.mock.On("Errorf",
-		append([]interface{}{format}, args...)...)}
+		append([]any{format}, args...)...)}
 }
 
 func (_c *MockTestingT_Errorf_Call) Run(run func(format string, args ...any)) *MockTestingT_Errorf_Call {
-	_c.Call.Run(func(args mock.Arguments) {
+	_c.Call.Run(func(args1 mock.Arguments) {
 		var arg0 string
-		if args[0] != nil {
-			arg0 = args[0].(string)
+		if args1[0] != nil {
+			arg0 = args1[0].(string)
 		}
 		var arg1 []any
 		var variadicArgs []any
-		if len(args) > 1 {
-			variadicArgs = args[1].([]any)
+		if len(args1) > 1 {
+			variadicArgs = args1[1].([]any)
 		}
 		arg1 = variadicArgs
 		run(

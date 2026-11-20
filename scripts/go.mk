@@ -1,5 +1,7 @@
 MODULE := $(shell cat go.mod | grep -e "^module" | sed "s/^module //")
 
+GO_VER := $(shell go env GOVERSION | cut -d. -f1-2)
+
 GO_PACKAGES = go list -tags='$(TAGS)' ./...
 GO_FOLDERS = go list -tags='$(TAGS)' -f '{{ .Dir }}' ./...
 GO_FILES = find . -type f -name '*.go'

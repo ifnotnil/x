@@ -16,10 +16,19 @@ func NewMockDecompressor(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockDecompressor {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockDecompressor{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -70,7 +79,7 @@ type MockDecompressor_Read_Call struct {
 
 // Read is a helper method to define mock.On call
 //   - p []byte
-func (_e *MockDecompressor_Expecter) Read(p interface{}) *MockDecompressor_Read_Call {
+func (_e *MockDecompressor_Expecter) Read(p any) *MockDecompressor_Read_Call {
 	return &MockDecompressor_Read_Call{Call: _e.mock.On("Read", p)}
 }
 
@@ -121,7 +130,7 @@ type MockDecompressor_Reset_Call struct {
 
 // Reset is a helper method to define mock.On call
 //   - compressedBody io.Reader
-func (_e *MockDecompressor_Expecter) Reset(compressedBody interface{}) *MockDecompressor_Reset_Call {
+func (_e *MockDecompressor_Expecter) Reset(compressedBody any) *MockDecompressor_Reset_Call {
 	return &MockDecompressor_Reset_Call{Call: _e.mock.On("Reset", compressedBody)}
 }
 
@@ -154,10 +163,19 @@ func NewMockBodyDecoder(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockBodyDecoder {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockBodyDecoder{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -201,7 +219,7 @@ type MockBodyDecoder_WrapBody_Call struct {
 
 // WrapBody is a helper method to define mock.On call
 //   - body io.ReadCloser
-func (_e *MockBodyDecoder_Expecter) WrapBody(body interface{}) *MockBodyDecoder_WrapBody_Call {
+func (_e *MockBodyDecoder_Expecter) WrapBody(body any) *MockBodyDecoder_WrapBody_Call {
 	return &MockBodyDecoder_WrapBody_Call{Call: _e.mock.On("WrapBody", body)}
 }
 

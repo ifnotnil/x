@@ -16,22 +16,11 @@ jobs:
     name: Lints scripts
     runs-on: ubuntu-latest
     steps:
-
       # https://github.com/actions/checkout
       - uses: actions/checkout@v7
 
-      # https://github.com/actions/setup-go/
-      - name: Set up Go
-        uses: actions/setup-go@v7
-        with:
-          go-version: '1.25.x'
-          check-latest: true
-          cache: false
-
       - id: tools
         uses: ./.github/actions/tools
-        with:
-          cache-key-prefix: lint
 
       - name: Check shell files
         run: make ci-sh
