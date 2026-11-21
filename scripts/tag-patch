@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ $# -ne 1 || -z $1 ]]; then
+  echo "Usage: $0 <module-prefix>" >&2
+  exit 1
+fi
+
+prefix=$1
+latest=
+
+# Git's version sorting compares version numbers numerically, not lexically.
+while IFS= read -r tag; do
+  [[ ${tag} == "${prefix}/"* ]] || continue
+  version=${tag#"${prefix}/"}
+  if [[ ${version} =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+    latest=${tag}
+    major=${BASH_REMATCH[1]}
+    minor=${BASH_REMATCH[2]}
+    patch=${BASH_REMATCH[3]}
+    break
+  fi
+done < <(git tag --list --sort=-version:refname)
+
+if [[ -z ${latest} ]]; then
+  echo "No version tags found for '${prefix}' (expected ${prefix}/vMAJOR.MINOR.PATCH)." >&2
+  exit 1
+fi
+
+next="${prefix}/v${major}.${minor}.$((patch + 1))"
+git tag --sign --message "${next}" -- "${next}"
+echo "Created signed tag ${next} (previous: ${latest})"
