@@ -40,3 +40,10 @@ A test helper package providing error assertion test functions.
 [![codecov](https://codecov.io/gh/ifnotnil/x/graph/badge.svg?token=n0t9q5Y3Sf&component=tst)](https://codecov.io/gh/ifnotnil/x)
 
 Install: `go get -u github.com/ifnotnil/x/tst`
+
+# Mise
+
+```shell
+export MISE_ENV=dev
+mise install
+```
