@@ -12,38 +12,3 @@ runs:
         experimental: false # [default: false] enable experimental features
         log_level: debug # [default: info] log level
         cache_key: "mise-{{platform}}-{{install_args_hash}}-{{file_hash}}"
-
-    # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions
-    # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#environment-files
-    - id: go_version
-      name: Get Go version
-      shell: bash
-      run: |
-        GO_VER=$(go env GOVERSION | cut -d. -f1-2)
-        echo "Detected Go version: ${GO_VER}"
-        echo "GO_VER=${GO_VER}" >> "$GITHUB_OUTPUT"
-
-        GOCACHE=$(go env GOCACHE)
-        echo "Detected GOCACHE: ${GOCACHE}"
-        echo "GOCACHE=${GOCACHE}" >> "$GITHUB_OUTPUT"
-
-        GOPATH=$(go env GOPATH)
-        echo "Detected GOPATH: ${GOPATH}"
-        echo "GOPATH=${GOPATH}" >> "$GITHUB_OUTPUT"
-
-    # https://github.com/actions/cache
-    - name: cache go deps
-      id: cache-go
-      uses: actions/cache@v6
-      with:
-        path: |
-          ${{ steps.go_version.outputs.GOCACHE }}
-          ${{ steps.go_version.outputs.GOPATH }}
-        key: ci-go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/go.mod', '**/go.sum', '.github/workflows/ci.yml') }}
-        restore-keys: |
-          ci-go-${{ runner.os }}-${{ runner.arch }}-
-
-
-# GOCACHE = ~/.cache/go-build
-# GOPATH = ~/go
-# GOMODCACHE = $GOPATH/mod
